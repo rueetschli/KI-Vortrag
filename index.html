@@ -217,6 +217,47 @@
         
         <!-- Notification Container -->
         <div id="notifications" class="notifications"></div>
+
+        <!-- Presenter Dock -->
+        <div class="presenter-dock" id="presenter-dock">
+            <button class="dock-button" id="toggle-spotlight" title="Spotlight (S)">💡 Spotlight</button>
+            <button class="dock-button" id="toggle-timer" title="Timer starten/stoppen (T)">⏱️ Timer</button>
+            <button class="dock-button" id="open-media-modal" title="YouTube einblenden">▶️ Video</button>
+            <button class="dock-button" id="open-interaction-panel" title="Interaktive Tools">🧩 Interaktiv</button>
+            <div class="dock-timer" id="dock-timer-display">00:00</div>
+        </div>
+
+        <!-- Media Modal -->
+        <div id="media-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content media-modal-content">
+                <div class="modal-header">
+                    <h3>YouTube-Video einblenden</h3>
+                    <button class="modal-close" id="close-media-modal">✕</button>
+                </div>
+                <div class="modal-body">
+                    <label for="youtube-url">YouTube-Link</label>
+                    <input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." class="interactive-input">
+                    <button class="button primary" id="embed-youtube">Video laden</button>
+                    <div id="youtube-preview" class="youtube-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interaction Panel -->
+        <aside id="interaction-panel" class="interaction-panel">
+            <div class="interaction-header">
+                <h3>Interaktive Tools</h3>
+                <button id="close-interaction-panel" class="close-sidebar">✕</button>
+            </div>
+            <div class="interaction-body">
+                <h4>QR-Code für spontane Aktivität</h4>
+                <input id="qr-title" class="interactive-input" type="text" placeholder="Titel (z. B. Live-Quiz)" value="Live-Quiz">
+                <input id="qr-link" class="interactive-input" type="url" placeholder="https://...">
+                <button id="generate-qr" class="button primary">QR generieren</button>
+                <div id="qr-output" class="qr-output"></div>
+            </div>
+        </aside>
     </div>
     
     <!-- Scripts -->
@@ -227,5 +268,6 @@
     <script src="js/app.js"></script>
     <script src="js/app-nav.js"></script>
     <script src="js/app-ui.js"></script>
+    <script src="js/presenter-tools.js"></script>
 </body>
 </html>

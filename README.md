@@ -24,12 +24,23 @@ Wirtschaftsschule Five Digital
 | F / F11 | Vollbild |
 | O | Übersicht öffnen |
 | Esc | Übersicht schließen |
+| S | Spotlight-Modus ein/aus |
+| T | Präsentations-Timer ein/aus |
 
 ### PowerPoint Presenter
 Die meisten kabellosen Presenter senden Page Up/Down - funktioniert automatisch!
 
 ### Touch/Mobile
 Wischen Sie links/rechts zum Navigieren.
+
+
+## ✨ Neue Presenter-Features
+
+- **Presenter Dock:** Schneller Zugriff auf Spotlight, Timer, Video-Overlay und Interaktionspanel.
+- **YouTube-Overlay:** Live während der Präsentation einen YouTube-Link einfügen und direkt abspielen.
+- **QR-Code-Generator:** In Sekunden einen QR-Code für Mentimeter, Kahoot, Forms o.ä. erzeugen.
+- **Spotlight-Modus:** Fokus-Licht für bessere Aufmerksamkeit im Raum.
+- **Vortrags-Timer:** Laufender Timer unten rechts für besseres Zeitmanagement.
 
 ## 📁 Dateistruktur
 
