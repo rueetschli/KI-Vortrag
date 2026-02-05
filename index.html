@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KI-Akademie | Wirtschaftsschule Five</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/exercises.css">
+</head>
+<body>
+    <!-- Particle Background -->
+    <canvas id="particles"></canvas>
+    
+    <!-- Grid Overlay -->
+    <div class="grid-overlay"></div>
+    
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-glow"></div>
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <svg viewBox="0 0 100 100" class="brain-icon">
+                                <defs>
+                                    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#f59e0b"/>
+                                        <stop offset="100%" style="stop-color:#ff6b35"/>
+                                    </linearGradient>
+                                </defs>
+                                <path fill="url(#brainGradient)" d="M50 10c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 70c-16.5 0-30-13.5-30-30s13.5-30 30-30 30 13.5 30 30-13.5 30-30 30z"/>
+                                <circle cx="35" cy="40" r="8" fill="url(#brainGradient)" class="pulse-dot"/>
+                                <circle cx="65" cy="40" r="8" fill="url(#brainGradient)" class="pulse-dot" style="animation-delay: 0.3s"/>
+                                <circle cx="50" cy="60" r="8" fill="url(#brainGradient)" class="pulse-dot" style="animation-delay: 0.6s"/>
+                                <line x1="35" y1="40" x2="65" y2="40" stroke="url(#brainGradient)" stroke-width="2" class="neural-line"/>
+                                <line x1="35" y1="40" x2="50" y2="60" stroke="url(#brainGradient)" stroke-width="2" class="neural-line"/>
+                                <line x1="65" y1="40" x2="50" y2="60" stroke="url(#brainGradient)" stroke-width="2" class="neural-line"/>
+                            </svg>
+                        </div>
+                        <h1 class="login-title">KI-AKADEMIE</h1>
+                        <p class="login-subtitle">Wirtschaftsschule Five Digital</p>
+                    </div>
+                </div>
+                
+                <div class="login-body">
+                    <div class="course-info">
+                        <span class="course-badge">Einführungsmodul</span>
+                        <h2>Künstliche Intelligenz</h2>
+                        <p>für Büro-, Marketing- und Verkaufsleiter</p>
+                    </div>
+                    
+                    <form id="login-form" class="login-form">
+                        <div class="input-group">
+                            <label for="student-name">Dein Name</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="student-name" name="name" placeholder="Vor- und Nachname eingeben" required autocomplete="off">
+                                <div class="input-glow"></div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="login-button">
+                            <span class="button-text">Lernreise starten</span>
+                            <span class="button-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                            <div class="button-glow"></div>
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="login-footer">
+                    <div class="stats-preview">
+                        <div class="stat-item">
+                            <span class="stat-number">6</span>
+                            <span class="stat-label">Module</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number">12+</span>
+                            <span class="stat-label">Übungen</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number">6h</span>
+                            <span class="stat-label">Lernzeit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Application -->
+    <div id="app" class="app hidden">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <div class="nav-logo">
+                    <span class="logo-text">KI</span>
+                    <span class="logo-dot"></span>
+                    <span class="logo-text-sub">AKADEMIE</span>
+                </div>
+            </div>
+            
+            <div class="nav-center">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="global-progress"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                    <span class="progress-text" id="progress-text">0%</span>
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <div class="user-info">
+                    <span class="user-name" id="display-name">Student</span>
+                    <div class="user-avatar" id="user-avatar">S</div>
+                </div>
+                <button class="nav-button" id="toggle-overview" title="Übersicht">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                </button>
+                <button class="nav-button" id="toggle-fullscreen" title="Vollbild">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Module Overview Sidebar -->
+        <aside id="module-sidebar" class="module-sidebar">
+            <div class="sidebar-header">
+                <h3>Module</h3>
+                <button class="close-sidebar" id="close-sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-content" id="module-list">
+                <!-- Dynamically populated -->
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Slide Container -->
+            <div class="slide-container" id="slide-container">
+                <!-- Slides are dynamically inserted here -->
+            </div>
+            
+            <!-- Navigation Controls -->
+            <div class="slide-controls">
+                <button class="control-button prev" id="prev-slide" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    <span>Zurück</span>
+                </button>
+                
+                <div class="slide-indicator" id="slide-indicator">
+                    <span class="current-slide">1</span>
+                    <span class="separator">/</span>
+                    <span class="total-slides">1</span>
+                </div>
+                
+                <button class="control-button next" id="next-slide">
+                    <span>Weiter</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </main>
+        
+        <!-- Exercise Modal -->
+        <div id="exercise-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="exercise-title">Übung</h3>
+                    <button class="modal-close" id="close-exercise">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body" id="exercise-content">
+                    <!-- Exercise content -->
+                </div>
+                <div class="modal-footer">
+                    <button class="button secondary" id="exercise-skip">Überspringen</button>
+                    <button class="button primary" id="exercise-submit">Antwort prüfen</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notification Container -->
+        <div id="notifications" class="notifications"></div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/markdown-parser.js"></script>
+    <script src="js/exercises.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/app-nav.js"></script>
+    <script src="js/app-ui.js"></script>
+</body>
+</html>
