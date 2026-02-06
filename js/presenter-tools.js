@@ -151,6 +151,10 @@
         byId('generate-qr')?.addEventListener('click', generateQr);
 
         document.addEventListener('keydown', (event) => {
+            // Don't intercept when typing in inputs, textareas, or contenteditable elements
+            const tag = event.target.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || event.target.isContentEditable) return;
+
             if (event.key === 's' || event.key === 'S') {
                 event.preventDefault();
                 toggleSpotlight();

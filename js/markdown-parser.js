@@ -40,6 +40,11 @@ class MarkdownParser {
         let currentModule = null;
         let slideIndex = 0;
 
+        // Store pre-generated HTML blocks with placeholders to prevent
+        // marked.parse() from escaping them (indented HTML = code block in markdown)
+        this.htmlBlocks = new Map();
+        this.htmlBlockCounter = 0;
+
         const lines = markdown.split('\n');
         let buffer = [];
         let inExercise = false;
@@ -121,7 +126,7 @@ class MarkdownParser {
             }
             if (line.trim() === ':::endtask' && inTask) {
                 const taskHtml = this.createTask(taskAttrs, taskBuffer.join('\n'));
-                buffer.push(taskHtml);
+                buffer.push(this.storeHtmlBlock(taskHtml));
                 inTask = false;
                 taskBuffer = [];
                 continue;
@@ -132,7 +137,7 @@ class MarkdownParser {
             if (taskResultsMatch) {
                 const trAttrs = this.parseAttributes(taskResultsMatch[1]);
                 const trHtml = this.createTaskResults(trAttrs);
-                buffer.push(trHtml);
+                buffer.push(this.storeHtmlBlock(trHtml));
                 continue;
             }
 
@@ -146,7 +151,7 @@ class MarkdownParser {
             }
             if ((line.trim() === ':::endexercise' || line.trim() === ':::') && inExercise) {
                 const exerciseHtml = this.createExercise(exerciseAttrs, exerciseBuffer.join('\n'));
-                buffer.push(exerciseHtml);
+                buffer.push(this.storeHtmlBlock(exerciseHtml));
                 inExercise = false;
                 exerciseBuffer = [];
                 continue;
@@ -195,6 +200,9 @@ class MarkdownParser {
 
         // Parse markdown to HTML
         let html = marked.parse(content);
+
+        // Restore pre-generated HTML blocks (exercises, tasks, task results)
+        html = this.restoreHtmlBlocks(html);
 
         // Process video thumbnails
         html = this.processVideoThumbnails(html);
@@ -405,6 +413,29 @@ class MarkdownParser {
             attrs[match[1]] = match[2];
         }
         return attrs;
+    }
+
+    /**
+     * Store a pre-generated HTML block and return a placeholder.
+     * This prevents marked.parse() from treating indented HTML as code blocks.
+     */
+    storeHtmlBlock(html) {
+        const id = `HTMLBLOCK_${this.htmlBlockCounter++}`;
+        this.htmlBlocks.set(id, html.trim());
+        return `<!--${id}-->`;
+    }
+
+    /**
+     * Replace placeholders in parsed HTML with the original HTML blocks.
+     */
+    restoreHtmlBlocks(html) {
+        this.htmlBlocks.forEach((blockHtml, id) => {
+            const placeholder = `<!--${id}-->`;
+            // marked may wrap standalone HTML comments in <p> tags
+            html = html.replace(`<p>${placeholder}</p>`, blockHtml);
+            html = html.replace(placeholder, blockHtml);
+        });
+        return html;
     }
 
     /**
