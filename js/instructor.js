@@ -32,10 +32,16 @@
         const badge = document.getElementById('instructor-badge');
         const presenterBtn = document.getElementById('open-presenter');
         const clearBtn = document.getElementById('clear-answers');
+        const dashBtn = document.getElementById('open-dashboard');
 
         if (badge) badge.classList.remove('hidden');
         if (presenterBtn) presenterBtn.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
+        if (dashBtn) dashBtn.classList.remove('hidden');
+
+        // Hide student points display for instructor
+        const pointsEl = document.getElementById('student-points');
+        if (pointsEl) pointsEl.classList.add('hidden');
 
         // Set instructor name
         const user = window.storage.setUser('Dozent');
@@ -352,6 +358,11 @@
         if (window.exerciseHandler) {
             window.exerciseHandler.reset();
         }
+
+        // Clear sync data (scores + slide state)
+        try {
+            fetch('api/sync.php?action=scores', { method: 'DELETE' }).catch(() => {});
+        } catch { /* ignore */ }
 
         window.app?.showNotification('Alle Antworten wurden gelöscht.', 'success');
         window.app?.renderCurrentSlide();

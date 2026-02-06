@@ -156,6 +156,14 @@
             </div>
 
             <div class="nav-right">
+                <div class="student-points hidden" id="student-points" title="Deine Punkte">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="points-icon">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span class="points-earned">0</span>
+                    <span class="points-sep">/</span>
+                    <span class="points-total">0</span>
+                </div>
                 <div class="user-info">
                     <span class="user-name" id="display-name">Student</span>
                     <div class="user-avatar" id="user-avatar">S</div>
@@ -174,6 +182,12 @@
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
                         <line x1="8" y1="21" x2="16" y2="21"/>
                         <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </button>
+                <!-- Dashboard Button (instructor only) -->
+                <button class="nav-button hidden" id="open-dashboard" title="Studenten-Dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
                     </svg>
                 </button>
                 <!-- Download Button -->
@@ -317,6 +331,27 @@
             <div class="video-fullscreen-content" id="video-fullscreen-content"></div>
         </div>
 
+        <!-- Exercise QR Code Overlay (instructor view) -->
+        <div id="exercise-qr-overlay" class="exercise-qr-overlay hidden"></div>
+
+        <!-- Instructor Dashboard Modal -->
+        <div id="dashboard-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content dashboard-modal-content">
+                <div class="modal-header">
+                    <h3>Studenten-Dashboard</h3>
+                    <button class="modal-close" id="close-dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body" id="dashboard-body">
+                    <div class="dashboard-loading">Daten werden geladen...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Clear Answers Confirmation Modal -->
         <div id="clear-confirm-modal" class="modal hidden">
             <div class="modal-overlay"></div>
@@ -346,6 +381,7 @@
     <script src="js/app-ui.js"></script>
     <script src="js/presenter-tools.js"></script>
     <script src="js/instructor.js"></script>
+    <script src="js/remote-sync.js"></script>
     <script src="js/task-submissions.js"></script>
     <script src="js/print-export.js"></script>
 </body>
