@@ -1813,3 +1813,483 @@ body {
         font-size: 0.8rem;
     }
 }
+
+/* =============================================
+   INSTRUCTOR CONTENT EDITOR
+   ============================================= */
+
+.editor-modal-content {
+    max-width: 95vw;
+    width: 1200px;
+    max-height: 92vh;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-modal-content .modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Editor Tabs */
+.editor-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.editor-tab {
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-400);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.editor-tab:hover {
+    color: var(--white);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.editor-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Editor Tab Content */
+.editor-tab-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Files Tab - Split Layout */
+.editor-files-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.editor-file-sidebar {
+    width: 260px;
+    min-width: 220px;
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-file-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+}
+
+.editor-file-sidebar-header h4 {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-300);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.editor-file-sidebar-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.editor-icon-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.editor-icon-btn:hover {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.editor-icon-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+#editor-file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.editor-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-bottom: 2px;
+}
+
+.editor-file-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.editor-file-item.active {
+    background: rgba(245, 158, 11, 0.12);
+    border-left: 3px solid var(--accent);
+}
+
+.editor-file-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--gray-500);
+}
+
+.editor-file-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.editor-file-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.editor-file-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-200);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor-file-item.active .editor-file-name {
+    color: var(--accent);
+}
+
+.editor-file-meta {
+    font-size: 0.7rem;
+    color: var(--gray-500);
+}
+
+/* Editor Panel */
+.editor-file-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-file-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+}
+
+.editor-current-filename {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    flex: 1;
+}
+
+.editor-unsaved {
+    font-size: 0.75rem;
+    color: var(--warning);
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    background: rgba(245, 158, 11, 0.12);
+    border-radius: var(--radius-sm);
+}
+
+#editor-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: none;
+    color: var(--gray-200);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    resize: none;
+    tab-size: 4;
+    outline: none;
+}
+
+#editor-textarea::placeholder {
+    color: var(--gray-600);
+}
+
+.editor-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--gray-500);
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Settings Tab */
+.editor-settings-form {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.editor-settings-section {
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.editor-settings-section h4 {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.editor-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+}
+
+.editor-field:last-child {
+    margin-bottom: 0;
+}
+
+.editor-field label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--gray-400);
+}
+
+.editor-field input {
+    padding: 0.55rem 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    transition: border-color var(--transition-fast);
+}
+
+.editor-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.editor-field-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.editor-field-row .editor-field {
+    flex: 1;
+}
+
+.editor-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+}
+
+/* Module Order Tab */
+.editor-order-layout {
+    padding: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.editor-order-description {
+    font-size: 0.85rem;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+#editor-module-order {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.editor-order-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.editor-order-item:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: var(--accent);
+}
+
+.editor-order-item.dragging {
+    opacity: 0.4;
+}
+
+.editor-order-item.drag-over {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.editor-order-handle {
+    cursor: grab;
+    color: var(--gray-500);
+    font-size: 1.1rem;
+}
+
+.editor-order-num {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.editor-order-name {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--gray-200);
+    font-family: var(--font-mono);
+}
+
+.editor-order-up,
+.editor-order-down,
+.editor-order-remove {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 0.7rem;
+    transition: all var(--transition-fast);
+}
+
+.editor-order-up:hover,
+.editor-order-down:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+}
+
+.editor-order-remove:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.editor-order-up:disabled,
+.editor-order-down:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.editor-order-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Password Tab */
+.editor-password-form {
+    padding: 1.5rem;
+    max-width: 450px;
+}
+
+.editor-password-form .editor-settings-section {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .editor-modal-content {
+        max-width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .editor-files-layout {
+        flex-direction: column;
+    }
+
+    .editor-file-sidebar {
+        width: 100%;
+        min-width: 0;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .editor-field-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}

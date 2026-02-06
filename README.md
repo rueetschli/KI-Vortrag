@@ -1,6 +1,8 @@
-# KI-Akademie - Interaktive Präsentationsplattform
+# KI-Grundlagen - Interaktive Präsentationsplattform
 
-> Wirtschaftsschule Five Digital - Markdown-basiertes Präsentationssystem mit Quizzes, Echtzeit-Synchronisation und Studenten-Tracking
+> Wirtschaftsschule Five - Markdown-basiertes Präsentationssystem mit Quizzes, Echtzeit-Synchronisation und Studenten-Tracking
+>
+> **Dozent:** Michael Rueetschli | **Schule:** Wirtschaftsschule Five
 
 ---
 
@@ -27,6 +29,9 @@
 - [Gruppenaufgaben (Tasks)](#gruppenaufgaben-tasks)
 - [Dozenten-Funktionen](#dozenten-funktionen)
   - [Dozenten-Login](#dozenten-login)
+  - [Content-Editor](#content-editor)
+  - [Seiteneinstellungen](#seiteneinstellungen)
+  - [Passwort ändern](#passwort-ändern)
   - [Referentenansicht](#referentenansicht)
   - [Presenter-Dock](#presenter-dock)
   - [Studenten-Dashboard](#studenten-dashboard)
@@ -514,11 +519,55 @@ Die `:::taskresults{task="brainstorming"}` Folie zeigt alle Einreichungen an:
 ### Dozenten-Login
 
 1. Auf dem Login-Bildschirm auf **"Als Dozent anmelden"** klicken
-2. Passwort eingeben: `dozent2026`
+2. Passwort eingeben (Standard: `dozent2026`, änderbar über den Editor)
 3. Es erscheinen zusätzliche Buttons in der Navigationsleiste:
+   - **Stift-Icon:** Content-Editor (Markdown-Dateien bearbeiten)
    - **Monitor-Icon:** Referentenansicht öffnen
    - **Balkendiagramm-Icon:** Studenten-Dashboard
    - **Papierkorb-Icon:** Alle Antworten löschen
+
+Das Dozenten-Passwort wird serverseitig in `config.php` gespeichert und kann über den Editor geändert werden. Ohne PHP-Backend wird das Fallback-Passwort `dozent2026` verwendet.
+
+### Content-Editor
+
+Der Content-Editor ermöglicht das direkte Bearbeiten aller Kursinhalte im Browser. Klicken Sie auf das **Stift-Icon** in der Navigationsleiste.
+
+**Tab: Dateien**
+- Alle `.md`-Dateien im `content/`-Ordner werden aufgelistet
+- Dateien können geöffnet, bearbeitet und gespeichert werden
+- Neue Dateien können erstellt werden (mit Modul-Template)
+- Bestehende Dateien können umbenannt oder gelöscht werden
+- Die `modules.json` wird bei jeder Dateiänderung automatisch aktualisiert
+
+**Tab: Modulreihenfolge**
+- Module können per Drag & Drop oder Pfeil-Buttons umsortiert werden
+- Module können aus der Liste entfernt werden (Datei bleibt erhalten)
+- Änderungen werden in `modules.json` gespeichert
+
+### Seiteneinstellungen
+
+Im Tab **Seiteneinstellungen** des Editors können folgende Werte angepasst werden:
+
+| Einstellung | Beschreibung | Beispiel |
+|------------|-------------|---------|
+| Titel | Haupttitel auf der Login-Seite | KI-GRUNDLAGEN |
+| Untertitel | Unter dem Logo | Wirtschaftsschule Five |
+| Badge | Kurs-Badge | Einführungsmodul |
+| Kursname | Name des Kurses | KI-Grundlagen |
+| Kursbeschreibung | Zielgruppe / Beschreibung | für Büro-, Marketing- und Verkaufsleiter |
+| Dozent | Name des Dozenten | Michael Rueetschli |
+| Institution | Name der Schule | Wirtschaftsschule Five |
+| Statistiken | Module, Übungen, Lernzeit | 6, 12+, 6h |
+
+Die Einstellungen werden in `config.php` gespeichert und beim Laden der Seite automatisch angewendet.
+
+### Passwort ändern
+
+Im Tab **Passwort** des Editors kann das Dozenten-Passwort geändert werden:
+1. Aktuelles Passwort eingeben
+2. Neues Passwort eingeben und bestätigen
+3. Mindestlänge: 4 Zeichen
+4. Das neue Passwort wird in `config.php` gespeichert
 
 ### Referentenansicht
 
@@ -645,6 +694,29 @@ Studenten müssen nicht selbst durch die Folien navigieren:
 | `DELETE` | `?action=scores` | Alle Punktestände + Folienstatus löschen |
 | `GET` | `?action=feedback` | Feedback-Übungen (Skala, Freitext) aggregiert abfragen |
 
+### Editor API (`api/editor.php`)
+
+Alle Endpunkte (ausser `auth`) erfordern den Header `X-Instructor-Auth` mit dem Dozenten-Passwort.
+
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|-------------|
+| `POST` | `?action=auth` | Passwort verifizieren (Body: `{password}`) |
+| `POST` | `?action=change-password` | Passwort ändern (Body: `{oldPassword, newPassword}`) |
+| `GET` | `?action=files` | Alle `.md`-Dateien auflisten |
+| `GET` | `?action=file&name=...` | Dateiinhalt lesen |
+| `POST` | `?action=file` | Datei speichern/erstellen (Body: `{name, content}`) |
+| `DELETE` | `?action=file&name=...` | Datei löschen |
+| `GET` | `?action=modules` | `modules.json` lesen |
+| `POST` | `?action=modules` | `modules.json` speichern |
+| `GET` | `?action=config` | Seiteneinstellungen lesen |
+| `POST` | `?action=config` | Seiteneinstellungen speichern (Body: `{site: {...}}`) |
+
+### Site Config (`api/site-config.php`)
+
+| Methode | Beschreibung |
+|---------|-------------|
+| `GET` | Öffentliche Seiteneinstellungen lesen (kein Passwort in Antwort) |
+
 ---
 
 ## Dateistruktur
@@ -653,8 +725,9 @@ Studenten müssen nicht selbst durch die Folien navigieren:
 ki-akademie/
 ├── index.html              # Hauptseite (Single-Page-App)
 ├── README.md               # Diese Dokumentation
+├── config.php              # Passwort + Seiteneinstellungen
 ├── css/
-│   ├── style.css           # Haupt-Styles + Dashboard + Punkte
+│   ├── style.css           # Haupt-Styles + Dashboard + Editor
 │   ├── animations.css      # Keyframe-Animationen
 │   ├── exercises.css       # Übungs-Komponenten
 │   └── presenter.css       # Referentenansicht + Task-Styles
@@ -662,6 +735,7 @@ ki-akademie/
 │   ├── app.js              # KIAkademie-Klasse, Initialisierung
 │   ├── app-nav.js          # Navigation, Content-Loading, Slide-Rendering
 │   ├── app-ui.js           # Sidebar, Fullscreen, Notifications
+│   ├── editor.js           # Content-Editor (Dateien, Einstellungen, Passwort)
 │   ├── exercises.js        # ExerciseHandler, Validierung, Scoring
 │   ├── markdown-parser.js  # Markdown-Erweiterungen, Übungs-HTML
 │   ├── storage.js          # LocalStorage-Manager
@@ -677,6 +751,8 @@ ki-akademie/
 │   ├── 02-ki-landschaft.md # Modul: KI-Landschaft
 │   └── ...                 # Weitere Module
 └── api/
+    ├── editor.php          # REST-API für Content-Editor
+    ├── site-config.php     # Öffentliche Seiteneinstellungen
     ├── submissions.php     # REST-API für Gruppenaufgaben
     ├── sync.php            # REST-API für Echtzeit-Sync + Scores
     └── data/               # JSON-Datenspeicher (automatisch erstellt)
@@ -730,8 +806,17 @@ Die Farben und Schriftarten können über CSS-Variablen in `css/style.css` angep
 **QR-Codes werden nicht angezeigt:**
 - Internetverbindung prüfen (QR-Codes werden von `api.qrserver.com` generiert)
 
+**Editor speichert nicht:**
+- PHP muss auf dem Server verfügbar sein
+- `content/`-Ordner muss beschreibbar sein (chmod 755)
+- `config.php` im Hauptverzeichnis muss beschreibbar sein
+- Browser-Konsole auf Fehlermeldungen prüfen
+
+**Passwort vergessen:**
+- Direkt in `config.php` das Passwort im Feld `'password'` ändern
+
 ---
 
 ## Lizenz
 
-Erstellt für Wirtschaftsschule Five Digital.
+Erstellt für Wirtschaftsschule Five.
