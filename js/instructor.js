@@ -4,12 +4,12 @@
  */
 
 (function () {
-    // Instructor password (SHA-256 hash of "dozent2026")
-    const INSTRUCTOR_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
-    const INSTRUCTOR_PASSWORD = 'dozent2026';
+    // Fallback password (used if PHP backend is unavailable)
+    const FALLBACK_PASSWORD = 'dozent2026';
 
     let isInstructor = false;
     let presenterWindow = null;
+    let instructorPassword = '';
 
     function checkInstructorSession() {
         return sessionStorage.getItem('ki-instructor') === 'true';
@@ -33,15 +33,22 @@
         const presenterBtn = document.getElementById('open-presenter');
         const clearBtn = document.getElementById('clear-answers');
         const dashBtn = document.getElementById('open-dashboard');
+        const editorBtn = document.getElementById('open-editor');
 
         if (badge) badge.classList.remove('hidden');
         if (presenterBtn) presenterBtn.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (dashBtn) dashBtn.classList.remove('hidden');
+        if (editorBtn) editorBtn.classList.remove('hidden');
 
         // Hide student points display for instructor
         const pointsEl = document.getElementById('student-points');
         if (pointsEl) pointsEl.classList.add('hidden');
+
+        // Initialize editor module with password
+        if (window.editorModule) {
+            window.editorModule.init(instructorPassword || FALLBACK_PASSWORD);
+        }
 
         // Set instructor name
         const user = window.storage.setUser('Dozent');
@@ -368,6 +375,49 @@
         window.app?.renderCurrentSlide();
     }
 
+    async function loadSiteSettings() {
+        try {
+            const res = await fetch('api/editor.php?action=config', {
+                headers: { 'X-Instructor-Auth': 'public-read' }
+            });
+            // This will fail with 401 - that's expected for unauthenticated reads
+            // We need a public config endpoint. Instead, load from a generated JS config.
+        } catch { /* ignore */ }
+
+        // Try loading config via a lightweight PHP endpoint
+        try {
+            const res = await fetch('api/site-config.php');
+            if (res.ok) {
+                const site = await res.json();
+                applySettings(site);
+            }
+        } catch { /* PHP unavailable, use HTML defaults */ }
+    }
+
+    function applySettings(site) {
+        if (!site) return;
+        const map = {
+            'site-title': site.title,
+            'site-subtitle': site.subtitle,
+            'site-course-name': site.course_name,
+            'site-course-badge': site.course_badge,
+            'site-course-desc': site.course_desc,
+            'site-stat-modules': site.stat_modules,
+            'site-stat-exercises': site.stat_exercises,
+            'site-stat-duration': site.stat_duration,
+        };
+        for (const [id, value] of Object.entries(map)) {
+            if (value) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            }
+        }
+        // Update page title
+        if (site.title && site.institution) {
+            document.title = `${site.course_name || site.title} | ${site.institution}`;
+        }
+    }
+
     function bind() {
         // Toggle instructor login form
         const toggleBtn = document.getElementById('instructor-login-toggle');
@@ -381,18 +431,39 @@
 
         // Handle instructor login
         if (instructorForm) {
-            instructorForm.addEventListener('submit', (e) => {
+            instructorForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const passwordInput = document.getElementById('instructor-password');
                 const password = passwordInput?.value || '';
 
-                if (password === INSTRUCTOR_PASSWORD) {
+                try {
+                    // Try server-side auth first (uses config.php password)
+                    const res = await fetch('api/editor.php?action=auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password })
+                    });
+                    if (res.ok) {
+                        instructorPassword = password;
+                        activateInstructorMode();
+                        return;
+                    }
+                } catch {
+                    // Backend unavailable - fall back to hardcoded password
+                }
+
+                // Fallback: check against hardcoded password
+                if (password === FALLBACK_PASSWORD) {
+                    instructorPassword = password;
                     activateInstructorMode();
                 } else {
                     window.app?.showNotification('Falsches Passwort', 'error');
                 }
             });
         }
+
+        // Load site settings from config.php (non-blocking)
+        loadSiteSettings();
 
         // Check existing instructor session
         if (checkInstructorSession()) {

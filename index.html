@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KI-Akademie | Wirtschaftsschule Five</title>
+    <title>KI-Grundlagen | Wirtschaftsschule Five</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,16 +50,16 @@
                                 <line x1="65" y1="40" x2="50" y2="60" stroke="url(#brainGradient)" stroke-width="2" class="neural-line"/>
                             </svg>
                         </div>
-                        <h1 class="login-title">KI-AKADEMIE</h1>
-                        <p class="login-subtitle">Wirtschaftsschule Five Digital</p>
+                        <h1 class="login-title" id="site-title">KI-GRUNDLAGEN</h1>
+                        <p class="login-subtitle" id="site-subtitle">Wirtschaftsschule Five</p>
                     </div>
                 </div>
 
                 <div class="login-body">
                     <div class="course-info">
-                        <span class="course-badge">Einführungsmodul</span>
-                        <h2>Künstliche Intelligenz</h2>
-                        <p>für Büro-, Marketing- und Verkaufsleiter</p>
+                        <span class="course-badge" id="site-course-badge">Einführungsmodul</span>
+                        <h2 id="site-course-name">KI-Grundlagen</h2>
+                        <p id="site-course-desc">für Büro-, Marketing- und Verkaufsleiter</p>
                     </div>
 
                     <form id="login-form" class="login-form">
@@ -113,17 +113,17 @@
                 <div class="login-footer">
                     <div class="stats-preview">
                         <div class="stat-item">
-                            <span class="stat-number">6</span>
+                            <span class="stat-number" id="site-stat-modules">6</span>
                             <span class="stat-label">Module</span>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <span class="stat-number">12+</span>
+                            <span class="stat-number" id="site-stat-exercises">12+</span>
                             <span class="stat-label">Übungen</span>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <span class="stat-number">6h</span>
+                            <span class="stat-number" id="site-stat-duration">6h</span>
                             <span class="stat-label">Lernzeit</span>
                         </div>
                     </div>
@@ -188,6 +188,13 @@
                 <button class="nav-button hidden" id="open-dashboard" title="Studenten-Dashboard">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                </button>
+                <!-- Editor Button (instructor only) -->
+                <button class="nav-button hidden" id="open-editor" title="Inhalte bearbeiten">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                 </button>
                 <!-- Download Button -->
@@ -352,6 +359,164 @@
             </div>
         </div>
 
+        <!-- Instructor Content Editor Modal -->
+        <div id="editor-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content editor-modal-content">
+                <div class="modal-header">
+                    <h3>Inhalte verwalten</h3>
+                    <button class="modal-close" id="close-editor">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tab Navigation -->
+                    <div class="editor-tabs">
+                        <button class="editor-tab active" data-tab="files">Dateien</button>
+                        <button class="editor-tab" data-tab="order">Modulreihenfolge</button>
+                        <button class="editor-tab" data-tab="settings">Seiteneinstellungen</button>
+                        <button class="editor-tab" data-tab="password">Passwort</button>
+                    </div>
+
+                    <!-- Files Tab -->
+                    <div class="editor-tab-content" id="editor-tab-files">
+                        <div class="editor-files-layout">
+                            <div class="editor-file-sidebar">
+                                <div class="editor-file-sidebar-header">
+                                    <h4>Markdown-Dateien</h4>
+                                    <div class="editor-file-sidebar-actions">
+                                        <button class="editor-icon-btn" id="editor-new-file" title="Neue Datei">+</button>
+                                    </div>
+                                </div>
+                                <div id="editor-file-list"></div>
+                            </div>
+                            <div class="editor-file-panel hidden" id="editor-file-panel">
+                                <div class="editor-file-toolbar">
+                                    <span class="editor-current-filename" id="editor-current-filename">—</span>
+                                    <span class="editor-unsaved hidden" id="editor-unsaved">Ungesichert</span>
+                                    <button class="editor-icon-btn" id="editor-rename-file" title="Umbenennen">✎</button>
+                                    <button class="editor-icon-btn" id="editor-delete-file" title="Löschen">🗑</button>
+                                    <button class="button primary" id="editor-save-file" style="padding:0.4rem 1rem;font-size:0.8rem;">Speichern</button>
+                                </div>
+                                <textarea id="editor-textarea" placeholder="Markdown-Inhalt hier bearbeiten..." spellcheck="false"></textarea>
+                            </div>
+                            <div class="editor-empty-state" id="editor-empty-state">
+                                <p>Datei in der Seitenleiste auswählen oder neue Datei erstellen</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module Order Tab -->
+                    <div class="editor-tab-content hidden" id="editor-tab-order">
+                        <div class="editor-order-layout">
+                            <p class="editor-order-description">
+                                Ziehen Sie Module per Drag &amp; Drop in die gewünschte Reihenfolge oder verwenden Sie die Pfeil-Buttons. Änderungen werden in <code>modules.json</code> gespeichert.
+                            </p>
+                            <div id="editor-module-order"></div>
+                            <div class="editor-order-actions">
+                                <button class="button primary" id="editor-save-order">Reihenfolge speichern</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="editor-tab-content hidden" id="editor-tab-settings">
+                        <div class="editor-settings-form">
+                            <div class="editor-settings-section">
+                                <h4>Loginseite</h4>
+                                <div class="editor-field-row">
+                                    <div class="editor-field">
+                                        <label for="editor-site-title">Titel</label>
+                                        <input type="text" id="editor-site-title" placeholder="z.B. KI-GRUNDLAGEN">
+                                    </div>
+                                    <div class="editor-field">
+                                        <label for="editor-site-subtitle">Untertitel</label>
+                                        <input type="text" id="editor-site-subtitle" placeholder="z.B. Wirtschaftsschule Five">
+                                    </div>
+                                </div>
+                                <div class="editor-field-row">
+                                    <div class="editor-field">
+                                        <label for="editor-site-course-badge">Badge</label>
+                                        <input type="text" id="editor-site-course-badge" placeholder="z.B. Einführungsmodul">
+                                    </div>
+                                    <div class="editor-field">
+                                        <label for="editor-site-course-name">Kursname</label>
+                                        <input type="text" id="editor-site-course-name" placeholder="z.B. KI-Grundlagen">
+                                    </div>
+                                </div>
+                                <div class="editor-field">
+                                    <label for="editor-site-course-desc">Kursbeschreibung</label>
+                                    <input type="text" id="editor-site-course-desc" placeholder="z.B. für Büro-, Marketing- und Verkaufsleiter">
+                                </div>
+                            </div>
+
+                            <div class="editor-settings-section">
+                                <h4>Kurs-Informationen</h4>
+                                <div class="editor-field-row">
+                                    <div class="editor-field">
+                                        <label for="editor-site-dozent">Dozent</label>
+                                        <input type="text" id="editor-site-dozent" placeholder="Name des Dozenten">
+                                    </div>
+                                    <div class="editor-field">
+                                        <label for="editor-site-institution">Schule / Institution</label>
+                                        <input type="text" id="editor-site-institution" placeholder="z.B. Wirtschaftsschule Five">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editor-settings-section">
+                                <h4>Statistiken (Login-Seite)</h4>
+                                <div class="editor-field-row">
+                                    <div class="editor-field">
+                                        <label for="editor-site-stat-modules">Module</label>
+                                        <input type="text" id="editor-site-stat-modules" placeholder="z.B. 6">
+                                    </div>
+                                    <div class="editor-field">
+                                        <label for="editor-site-stat-exercises">Übungen</label>
+                                        <input type="text" id="editor-site-stat-exercises" placeholder="z.B. 12+">
+                                    </div>
+                                    <div class="editor-field">
+                                        <label for="editor-site-stat-duration">Lernzeit</label>
+                                        <input type="text" id="editor-site-stat-duration" placeholder="z.B. 6h">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editor-settings-actions">
+                                <button class="button primary" id="editor-save-settings">Einstellungen speichern</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Tab -->
+                    <div class="editor-tab-content hidden" id="editor-tab-password">
+                        <div class="editor-password-form">
+                            <div class="editor-settings-section">
+                                <h4>Dozenten-Passwort ändern</h4>
+                                <div class="editor-field">
+                                    <label for="editor-old-password">Aktuelles Passwort</label>
+                                    <input type="password" id="editor-old-password" autocomplete="off">
+                                </div>
+                                <div class="editor-field">
+                                    <label for="editor-new-password">Neues Passwort</label>
+                                    <input type="password" id="editor-new-password" autocomplete="off">
+                                </div>
+                                <div class="editor-field">
+                                    <label for="editor-confirm-password">Neues Passwort bestätigen</label>
+                                    <input type="password" id="editor-confirm-password" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="editor-settings-actions">
+                                <button class="button primary" id="editor-save-password">Passwort ändern</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Clear Answers Confirmation Modal -->
         <div id="clear-confirm-modal" class="modal hidden">
             <div class="modal-overlay"></div>
@@ -380,6 +545,7 @@
     <script src="js/app-nav.js"></script>
     <script src="js/app-ui.js"></script>
     <script src="js/presenter-tools.js"></script>
+    <script src="js/editor.js"></script>
     <script src="js/instructor.js"></script>
     <script src="js/remote-sync.js"></script>
     <script src="js/task-submissions.js"></script>
