@@ -123,6 +123,15 @@
                 const textEl = document.querySelector(`#text-${id}`);
                 if (textEl) enriched[id].value = textEl.value;
             }
+            // Capture multiple-choice selected answer
+            if (enriched[id].type === 'multiple-choice') {
+                const selected = card?.querySelector('.mc-option.selected');
+                if (selected) {
+                    enriched[id].value = selected.dataset.value;
+                    const textEl = selected.querySelector('.mc-text');
+                    if (textEl) enriched[id].valueLabel = textEl.textContent.trim();
+                }
+            }
         }
 
         try {
@@ -312,6 +321,34 @@
                     html += '<div class="feedback-values">';
                     group.entries.forEach(e => {
                         html += `<span class="feedback-chip">${escapeHtml(e.student)}: ${e.value}</span>`;
+                    });
+                    html += '</div>';
+                } else if (group.type === 'multiple-choice') {
+                    // MC distribution: count answers per option
+                    const counts = {};
+                    const labels = {};
+                    group.entries.forEach(e => {
+                        const v = e.value || '?';
+                        counts[v] = (counts[v] || 0) + 1;
+                        if (e.valueLabel) labels[v] = e.valueLabel;
+                    });
+                    const total = group.entries.length;
+                    html += `<div class="feedback-scale-summary">`;
+                    html += `<span class="feedback-count">${total} Antworten</span>`;
+                    html += `</div>`;
+                    html += '<div class="feedback-mc-distribution">';
+                    // Sort options alphabetically (A, B, C, ...)
+                    Object.keys(counts).sort().forEach(key => {
+                        const count = counts[key];
+                        const pct = Math.round((count / total) * 100);
+                        const label = labels[key] || key;
+                        html += `<div class="feedback-mc-bar-row">
+                            <span class="feedback-mc-label">${escapeHtml(label)}</span>
+                            <div class="dashboard-bar-bg" style="flex:1">
+                                <div class="dashboard-bar" style="width:${pct}%;background:var(--accent)"></div>
+                            </div>
+                            <span class="feedback-mc-count">${count} (${pct}%)</span>
+                        </div>`;
                     });
                     html += '</div>';
                 } else {
