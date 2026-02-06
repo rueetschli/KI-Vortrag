@@ -99,17 +99,42 @@ class KIAkademie {
     
     bindTouch() {
         let startX = 0;
+        let startY = 0;
+        let touchBlocked = false;
         const container = this.elements.slideContainer;
         if (!container) return;
-        
+
+        // Selectors for interactive exercise elements where swipe should be disabled
+        const interactiveSelectors = [
+            '.exercise-card input[type="range"]',
+            '.exercise-card .scale-slider-container',
+            '.exercise-card .mc-option',
+            '.exercise-card .tf-option',
+            '.exercise-card .matching-item',
+            '.exercise-card .ordering-item',
+            '.exercise-card .ordering-handle',
+            '.exercise-card button',
+            '.exercise-card input',
+            '.exercise-card textarea',
+            '.exercise-card .demo-input',
+            '.exercise-card select'
+        ].join(',');
+
         container.addEventListener('touchstart', (e) => {
             startX = e.changedTouches[0].screenX;
+            startY = e.changedTouches[0].screenY;
+            // Block swipe navigation when touching interactive exercise elements
+            touchBlocked = !!e.target.closest(interactiveSelectors);
         }, {passive: true});
-        
+
         container.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - startX;
-            if (Math.abs(diff) > 50) {
-                diff < 0 ? this.nextSlide() : this.prevSlide();
+            if (touchBlocked) return;
+            const diffX = e.changedTouches[0].screenX - startX;
+            const diffY = e.changedTouches[0].screenY - startY;
+            // Only navigate for clearly horizontal swipes (X movement > 2x Y movement)
+            // and with a higher threshold to prevent accidental navigation
+            if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 2) {
+                diffX < 0 ? this.nextSlide() : this.prevSlide();
             }
         }, {passive: true});
     }
