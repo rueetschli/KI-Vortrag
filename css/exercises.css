@@ -527,7 +527,8 @@
 
 .scale-slider-container {
     position: relative;
-    padding: 0 var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    touch-action: none;
 }
 
 .scale-slider {
@@ -538,6 +539,7 @@
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
+    touch-action: none;
 }
 
 .scale-slider::-webkit-slider-thumb {
@@ -549,6 +551,16 @@
     cursor: pointer;
     box-shadow: 0 0 10px var(--accent-glow);
     transition: transform var(--transition-fast);
+}
+
+.scale-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .scale-slider::-webkit-slider-thumb:hover {
@@ -1036,4 +1048,91 @@
 .exercise-timer.danger {
     color: var(--error);
     animation: pulse 1s ease-in-out infinite;
+}
+
+/* =============================================
+   MOBILE TOUCH IMPROVEMENTS
+   ============================================= */
+
+@media (max-width: 768px) {
+    /* Larger slider thumb for touch (min 44px per Apple HIG) */
+    .scale-slider {
+        height: 12px;
+        border-radius: 6px;
+    }
+
+    .scale-slider::-webkit-slider-thumb {
+        width: 44px;
+        height: 44px;
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .scale-slider::-moz-range-thumb {
+        width: 44px;
+        height: 44px;
+        box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .scale-slider-container {
+        padding: var(--space-lg) var(--space-xl);
+    }
+
+    /* Larger touch targets for MC options */
+    .mc-option {
+        padding: var(--space-md) var(--space-lg);
+        min-height: 48px;
+    }
+
+    /* Larger touch targets for true/false options */
+    .tf-option {
+        min-height: 48px;
+        padding: var(--space-md) var(--space-lg);
+    }
+
+    /* Larger ordering handles for drag */
+    .ordering-handle {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ordering-item {
+        touch-action: none;
+    }
+
+    /* Matching items easier to tap */
+    .matching-item {
+        min-height: 44px;
+        padding: var(--space-md);
+    }
+
+    /* Exercise buttons easier to tap */
+    .exercise-card .check-button {
+        min-height: 48px;
+        font-size: 1rem;
+        padding: var(--space-md) var(--space-xl);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Even larger slider on small phones */
+    .scale-slider::-webkit-slider-thumb {
+        width: 52px;
+        height: 52px;
+    }
+
+    .scale-slider::-moz-range-thumb {
+        width: 52px;
+        height: 52px;
+    }
+
+    .scale-slider-container {
+        padding: var(--space-xl) var(--space-xl);
+    }
+
+    .scale-value {
+        font-size: 2.5rem;
+    }
 }
