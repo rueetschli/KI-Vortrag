@@ -12,7 +12,7 @@
  *   POST ?action=score           → Report student score
  *   GET  ?action=scores          → Get all student scores (instructor)
  *   DELETE ?action=scores        → Clear all student scores
- *   GET  ?action=feedback        → Get all scale/text feedback
+ *   GET  ?action=feedback        → Get all MC/scale/text feedback
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -165,20 +165,24 @@ switch ($action) {
             }
             $scores = json_decode(file_get_contents($filePath), true) ?? [];
 
-            // Extract scale and text-input exercises from all students
+            // Extract feedback exercises (scale, text-input, multiple-choice) from all students
             $feedback = [];
             foreach ($scores as $student) {
                 $exercises = $student['exercises'] ?? [];
                 foreach ($exercises as $exId => $ex) {
                     $type = $ex['type'] ?? '';
-                    if ($type === 'scale' || $type === 'text-input') {
-                        $feedback[] = [
+                    if ($type === 'scale' || $type === 'text-input' || $type === 'multiple-choice') {
+                        $entry = [
                             'student' => $student['name'],
                             'exerciseId' => $exId,
                             'type' => $type,
                             'value' => $ex['value'] ?? '',
                             'title' => $ex['title'] ?? $exId
                         ];
+                        if (isset($ex['valueLabel'])) {
+                            $entry['valueLabel'] = $ex['valueLabel'];
+                        }
+                        $feedback[] = $entry;
                     }
                 }
             }

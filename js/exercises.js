@@ -147,9 +147,13 @@ class ExerciseHandler {
                 break;
         }
         
+        // Detect survey mode (MC with correct: "*")
+        const isSurvey = type === 'multiple-choice' &&
+            card.querySelector('.mc-options')?.dataset.correct === '*';
+
         // Show feedback
-        this.showFeedback(exerciseId, isCorrect, points);
-        
+        this.showFeedback(exerciseId, isCorrect, points, isSurvey);
+
         // Record result
         this.results.set(exerciseId, { correct: isCorrect, points: isCorrect ? points : 0 });
         
@@ -168,34 +172,41 @@ class ExerciseHandler {
     
     /**
      * Check multiple choice answer
+     * Supports correct: "*" as wildcard (survey mode – every answer is accepted)
      */
     checkMultipleChoice(card) {
         const container = card.querySelector('.mc-options');
         if (!container) return false;
-        
+
         const correct = container.dataset.correct;
         const selected = container.querySelector('.mc-option.selected');
-        
+
         if (!selected) {
             this.showNotification('Bitte wählen Sie eine Antwort aus.', 'warning');
             return false;
         }
-        
+
         const selectedValue = selected.dataset.value;
-        const isCorrect = selectedValue === correct;
-        
+        const isSurvey = correct === '*';
+        const isCorrect = isSurvey || selectedValue === correct;
+
         // Mark container as submitted
         container.classList.add('submitted');
-        
-        // Show correct/incorrect styling
-        container.querySelectorAll('.mc-option').forEach(option => {
-            if (option.dataset.value === correct) {
-                option.classList.add('correct');
-            } else if (option.classList.contains('selected') && option.dataset.value !== correct) {
-                option.classList.add('incorrect');
-            }
-        });
-        
+
+        if (isSurvey) {
+            // Survey mode: just highlight the chosen answer, no right/wrong
+            selected.classList.add('correct');
+        } else {
+            // Quiz mode: show correct/incorrect styling
+            container.querySelectorAll('.mc-option').forEach(option => {
+                if (option.dataset.value === correct) {
+                    option.classList.add('correct');
+                } else if (option.classList.contains('selected') && option.dataset.value !== correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+        }
+
         return isCorrect;
     }
     
@@ -296,20 +307,27 @@ class ExerciseHandler {
     /**
      * Show feedback for an exercise
      */
-    showFeedback(exerciseId, isCorrect, points) {
+    showFeedback(exerciseId, isCorrect, points, isSurvey = false) {
         const feedbackContainer = document.getElementById(`feedback-${exerciseId}`);
         if (!feedbackContainer) return;
-        
+
         const feedbackClass = isCorrect ? 'correct' : 'incorrect';
-        const icon = isCorrect ? 
+        const icon = isCorrect ?
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' :
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-        
-        const title = isCorrect ? 'Richtig!' : 'Nicht ganz richtig';
-        const message = isCorrect ? 
-            `Sehr gut! Sie haben ${points} Punkte verdient.` :
-            'Schauen Sie sich die richtige Antwort an und versuchen Sie es beim nächsten Mal erneut.';
-        
+
+        let title, message;
+        if (isSurvey) {
+            title = 'Danke!';
+            message = 'Ihre Antwort wurde erfasst.';
+        } else if (isCorrect) {
+            title = 'Richtig!';
+            message = `Sehr gut! Sie haben ${points} Punkte verdient.`;
+        } else {
+            title = 'Nicht ganz richtig';
+            message = 'Schauen Sie sich die richtige Antwort an und versuchen Sie es beim nächsten Mal erneut.';
+        }
+
         feedbackContainer.className = `exercise-feedback ${feedbackClass}`;
         feedbackContainer.innerHTML = `
             <div class="feedback-header">
