@@ -63,7 +63,7 @@ class KIAkademie {
     // Keyboard & Presenter Remote Support
     bindKeyboard() {
         document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
             
             switch(e.key) {
                 case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'n':
