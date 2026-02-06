@@ -109,9 +109,14 @@ Object.assign(KIAkademie.prototype, {
         this.updateNavigation();
         this.updateProgress();
         this.renderModuleList();
-        
+
         // Save position
         window.storage?.setPosition(this.currentModuleIndex, this.currentSlideIndex);
+
+        // Notify task submissions module
+        if (window.taskSubmissions) {
+            window.taskSubmissions.onSlideRendered();
+        }
     },
     
     nextSlide() {

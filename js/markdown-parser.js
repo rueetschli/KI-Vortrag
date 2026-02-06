@@ -13,68 +13,57 @@ class MarkdownParser {
                 headerIds: true
             });
         }
-        
+
         // Custom syntax patterns
         this.patterns = {
-            // Slide separator: ---slide---
             slideSeparator: /^---slide---$/gm,
-            
-            // Module definition: :::module{id="1" title="Title" duration="60"}
             moduleStart: /^:::module\{([^}]+)\}$/gm,
             moduleEnd: /^:::$/gm,
-            
-            // Exercise blocks
             exerciseStart: /^:::exercise\{([^}]+)\}$/gm,
             exerciseEnd: /^:::$/gm,
-            
-            // Special content boxes
             infoBox: /^:::info\n([\s\S]*?)^:::$/gm,
             warningBox: /^:::warning\n([\s\S]*?)^:::$/gm,
             successBox: /^:::success\n([\s\S]*?)^:::$/gm,
-            
-            // Interactive demo
             demoStart: /^:::demo\{([^}]+)\}$/gm,
-            
-            // Slide types
             titleSlide: /^:::title-slide$/gm,
             contentSlide: /^:::content-slide$/gm,
             exerciseSlide: /^:::exercise-slide$/gm,
-            
-            // Attributes parser
             attributes: /(\w+)=["']([^"']+)["']/g
         };
     }
-    
+
     /**
      * Parse a complete markdown file into modules and slides
      */
     parseContent(markdown) {
         const modules = [];
         let currentModule = null;
-        let currentSlide = null;
         let slideIndex = 0;
-        
-        // Split by lines for processing
+
         const lines = markdown.split('\n');
         let buffer = [];
-        let inModule = false;
         let inExercise = false;
         let exerciseBuffer = [];
         let exerciseAttrs = {};
-        
+        let inTask = false;
+        let taskBuffer = [];
+        let taskAttrs = {};
+        let inNotes = false;
+        let notesBuffer = [];
+        let inTaskResults = false;
+        let taskResultsAttrs = {};
+
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            
-            // Check for module start
+
+            // Module start
             const moduleMatch = line.match(/^:::module\{([^}]+)\}$/);
             if (moduleMatch) {
-                // Save previous module if exists
                 if (currentModule && buffer.length > 0) {
-                    this.processBuffer(currentModule, buffer, slideIndex);
+                    this.processBuffer(currentModule, buffer, slideIndex, notesBuffer.join('\n'));
                     buffer = [];
+                    notesBuffer = [];
                 }
-                
-                // Create new module
                 const attrs = this.parseAttributes(moduleMatch[1]);
                 currentModule = {
                     id: attrs.id || `module-${modules.length + 1}`,
@@ -83,32 +72,71 @@ class MarkdownParser {
                     slides: []
                 };
                 modules.push(currentModule);
-                inModule = true;
                 slideIndex = 0;
                 continue;
             }
-            
-            // Check for module end
+
+            // Module end
             if (line.trim() === ':::endmodule') {
                 if (buffer.length > 0 && currentModule) {
-                    this.processBuffer(currentModule, buffer, slideIndex);
+                    this.processBuffer(currentModule, buffer, slideIndex, notesBuffer.join('\n'));
                     buffer = [];
+                    notesBuffer = [];
                 }
-                inModule = false;
                 continue;
             }
-            
-            // Check for slide separator
+
+            // Slide separator
             if (line.trim() === '---slide---') {
                 if (buffer.length > 0 && currentModule) {
-                    this.processBuffer(currentModule, buffer, slideIndex);
+                    this.processBuffer(currentModule, buffer, slideIndex, notesBuffer.join('\n'));
                     buffer = [];
+                    notesBuffer = [];
                     slideIndex++;
                 }
                 continue;
             }
-            
-            // Check for exercise start
+
+            // Notes start/end
+            if (line.trim() === ':::notes') {
+                inNotes = true;
+                continue;
+            }
+            if (line.trim() === ':::endnotes' && inNotes) {
+                inNotes = false;
+                continue;
+            }
+            if (inNotes) {
+                notesBuffer.push(line);
+                continue;
+            }
+
+            // Task start
+            const taskMatch = line.match(/^:::task\{([^}]+)\}$/);
+            if (taskMatch) {
+                taskAttrs = this.parseAttributes(taskMatch[1]);
+                inTask = true;
+                taskBuffer = [];
+                continue;
+            }
+            if (line.trim() === ':::endtask' && inTask) {
+                const taskHtml = this.createTask(taskAttrs, taskBuffer.join('\n'));
+                buffer.push(taskHtml);
+                inTask = false;
+                taskBuffer = [];
+                continue;
+            }
+
+            // Task results
+            const taskResultsMatch = line.match(/^:::taskresults\{([^}]+)\}$/);
+            if (taskResultsMatch) {
+                const trAttrs = this.parseAttributes(taskResultsMatch[1]);
+                const trHtml = this.createTaskResults(trAttrs);
+                buffer.push(trHtml);
+                continue;
+            }
+
+            // Exercise start
             const exerciseMatch = line.match(/^:::exercise\{([^}]+)\}$/);
             if (exerciseMatch) {
                 exerciseAttrs = this.parseAttributes(exerciseMatch[1]);
@@ -116,39 +144,39 @@ class MarkdownParser {
                 exerciseBuffer = [];
                 continue;
             }
-            
-            // Check for exercise end
-            if (line.trim() === ':::endexercise' && inExercise) {
+            if ((line.trim() === ':::endexercise' || line.trim() === ':::') && inExercise) {
                 const exerciseHtml = this.createExercise(exerciseAttrs, exerciseBuffer.join('\n'));
                 buffer.push(exerciseHtml);
                 inExercise = false;
                 exerciseBuffer = [];
                 continue;
             }
-            
+
             // Collect content
-            if (inExercise) {
+            if (inTask) {
+                taskBuffer.push(line);
+            } else if (inExercise) {
                 exerciseBuffer.push(line);
             } else {
                 buffer.push(line);
             }
         }
-        
+
         // Process remaining buffer
         if (buffer.length > 0 && currentModule) {
-            this.processBuffer(currentModule, buffer, slideIndex);
+            this.processBuffer(currentModule, buffer, slideIndex, notesBuffer.join('\n'));
         }
-        
+
         return modules;
     }
-    
+
     /**
      * Process a buffer of lines into a slide
      */
-    processBuffer(module, buffer, slideIndex) {
+    processBuffer(module, buffer, slideIndex, notes) {
         let content = buffer.join('\n').trim();
         if (!content) return;
-        
+
         // Determine slide type
         let slideType = 'content';
         if (content.includes(':::title-slide')) {
@@ -158,22 +186,29 @@ class MarkdownParser {
             slideType = 'exercise';
             content = content.replace(/:::exercise-slide\n?/g, '');
         }
-        
+
         // Process special boxes
         content = this.processSpecialBoxes(content);
-        
+
+        // Process media layouts
+        content = this.processMediaLayouts(content);
+
         // Parse markdown to HTML
         let html = marked.parse(content);
-        
+
+        // Process video thumbnails
+        html = this.processVideoThumbnails(html);
+
         // Create slide object
         const slide = {
             id: `${module.id}-slide-${slideIndex}`,
             moduleId: module.id,
             type: slideType,
             content: html,
-            index: slideIndex
+            index: slideIndex,
+            notes: notes ? notes.trim() : ''
         };
-        
+
         // Extract title for navigation
         const titleMatch = content.match(/^#\s+(.+)$/m);
         if (titleMatch) {
@@ -182,32 +217,183 @@ class MarkdownParser {
             const h2Match = content.match(/^##\s+(.+)$/m);
             slide.title = h2Match ? h2Match[1] : `Folie ${slideIndex + 1}`;
         }
-        
+
         module.slides.push(slide);
     }
-    
+
     /**
      * Process special content boxes
      */
     processSpecialBoxes(content) {
-        // Info boxes
         content = content.replace(/:::info\n([\s\S]*?):::/gm, (match, inner) => {
             return `<div class="info-box">${marked.parse(inner.trim())}</div>`;
         });
-        
-        // Warning boxes
         content = content.replace(/:::warning\n([\s\S]*?):::/gm, (match, inner) => {
             return `<div class="warning-box">${marked.parse(inner.trim())}</div>`;
         });
-        
-        // Success boxes
         content = content.replace(/:::success\n([\s\S]*?):::/gm, (match, inner) => {
             return `<div class="success-box">${marked.parse(inner.trim())}</div>`;
         });
-        
         return content;
     }
-    
+
+    /**
+     * Process media layouts:
+     * :::media{image="url" source="..." video="youtube-url" thumbnail="url" position="left|right"}
+     * Text content here
+     * :::endmedia
+     */
+    processMediaLayouts(content) {
+        content = content.replace(
+            /:::media\{([^}]+)\}\n([\s\S]*?):::endmedia/gm,
+            (match, attrStr, innerContent) => {
+                const attrs = this.parseAttributes(attrStr);
+                return this.createMediaLayout(attrs, innerContent.trim());
+            }
+        );
+        return content;
+    }
+
+    /**
+     * Create a media layout HTML block
+     */
+    createMediaLayout(attrs, textContent) {
+        const position = attrs.position || 'left';
+        const image = attrs.image || '';
+        const video = attrs.video || '';
+        const thumbnail = attrs.thumbnail || '';
+        const source = attrs.source || '';
+
+        let mediaHtml = '';
+
+        if (video) {
+            const videoId = this.extractYoutubeId(video);
+            const thumbUrl = thumbnail || (videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '');
+            mediaHtml = `
+                <div class="media-video-container" data-video-id="${videoId || ''}" data-video-url="${video}">
+                    <img src="${thumbUrl}" alt="Video Vorschau" class="media-thumbnail" onclick="playVideoFullscreen(this)">
+                    <div class="media-play-button" onclick="playVideoFullscreen(this.parentElement.querySelector('.media-thumbnail'))">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </div>
+                </div>
+            `;
+        } else if (image) {
+            mediaHtml = `<img src="${image}" alt="" class="media-image">`;
+        }
+
+        if (source) {
+            mediaHtml += `<div class="media-source">Quelle: ${source}</div>`;
+        }
+
+        const textHtml = marked.parse(textContent);
+
+        if (position === 'right') {
+            return `
+                <div class="media-layout">
+                    <div class="media-text">${textHtml}</div>
+                    <div class="media-visual">${mediaHtml}</div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="media-layout">
+                <div class="media-visual">${mediaHtml}</div>
+                <div class="media-text">${textHtml}</div>
+            </div>
+        `;
+    }
+
+    /**
+     * Process video thumbnails: YouTube image links become playable thumbnails
+     */
+    processVideoThumbnails(html) {
+        html = html.replace(
+            /<img\s+src="(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})[^"]*)"[^>]*>/g,
+            (match, url, videoId) => {
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                return `
+                    <div class="media-video-container" data-video-id="${videoId}" data-video-url="${url}">
+                        <img src="${thumbUrl}" alt="Video Vorschau" class="media-thumbnail" onclick="playVideoFullscreen(this)">
+                        <div class="media-play-button" onclick="playVideoFullscreen(this.parentElement.querySelector('.media-thumbnail'))">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                    </div>
+                `;
+            }
+        );
+        return html;
+    }
+
+    extractYoutubeId(url) {
+        if (!url) return null;
+        const patterns = [
+            /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+            /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+            /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+        ];
+        for (const p of patterns) {
+            const m = url.match(p);
+            if (m) return m[1];
+        }
+        return null;
+    }
+
+    /**
+     * Create interactive task HTML (QR code slide)
+     */
+    createTask(attrs, content) {
+        const id = attrs.id || `task-${Date.now()}`;
+        const title = attrs.title || 'Aufgabe';
+        const description = content.trim();
+        const descHtml = marked.parse(description);
+
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const taskUrl = `${baseUrl}?task=${encodeURIComponent(id)}&title=${encodeURIComponent(title)}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(taskUrl)}`;
+
+        return `
+            <div class="task-slide" data-task-id="${id}">
+                <div class="task-header">
+                    <span class="task-badge">Gruppenaufgabe</span>
+                    <h2 class="task-title">${title}</h2>
+                </div>
+                <div class="task-description">${descHtml}</div>
+                <div class="task-access">
+                    <div class="task-qr">
+                        <img src="${qrUrl}" alt="QR-Code" class="task-qr-image">
+                        <p class="task-qr-label">QR-Code scannen</p>
+                    </div>
+                    <div class="task-or">oder</div>
+                    <div class="task-url">
+                        <p class="task-url-label">URL im Browser öffnen:</p>
+                        <div class="task-url-box">${taskUrl}</div>
+                    </div>
+                </div>
+                <div class="task-live-count" id="task-count-${id}">
+                    <span class="count-number">0</span> Einreichungen
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create task results slide HTML
+     */
+    createTaskResults(attrs) {
+        const taskId = attrs.task || attrs.id || '';
+        const title = attrs.title || 'Ergebnisse';
+
+        return `
+            <div class="task-results-slide" data-task-id="${taskId}">
+                <h2 class="task-results-title">${title}</h2>
+                <div class="task-results-container" id="results-${taskId}">
+                    <div class="task-results-loading">Antworten werden geladen...</div>
+                </div>
+            </div>
+        `;
+    }
+
     /**
      * Parse attributes from a string like: id="1" title="Test"
      */
@@ -215,14 +401,12 @@ class MarkdownParser {
         const attrs = {};
         const regex = /(\w+)=["']([^"']+)["']/g;
         let match;
-        
         while ((match = regex.exec(attrString)) !== null) {
             attrs[match[1]] = match[2];
         }
-        
         return attrs;
     }
-    
+
     /**
      * Create exercise HTML based on type
      */
@@ -231,12 +415,10 @@ class MarkdownParser {
         const id = attrs.id || `exercise-${Date.now()}`;
         const title = attrs.title || 'Übung';
         const points = attrs.points || '10';
-        
-        // Parse exercise content (YAML-like format)
+
         const exerciseData = this.parseExerciseContent(content);
-        
         let exerciseHtml = '';
-        
+
         switch (type) {
             case 'multiple-choice':
                 exerciseHtml = this.createMultipleChoice(id, exerciseData);
@@ -265,7 +447,7 @@ class MarkdownParser {
             default:
                 exerciseHtml = `<p>Unbekannter Übungstyp: ${type}</p>`;
         }
-        
+
         return `
             <div class="exercise-card" data-exercise-id="${id}" data-type="${type}" data-points="${points}">
                 <div class="exercise-header">
@@ -305,97 +487,57 @@ class MarkdownParser {
             </div>
         `;
     }
-    
-    /**
-     * Parse exercise content from YAML-like format
-     */
+
     parseExerciseContent(content) {
         const data = {
-            question: '',
-            options: [],
-            correct: null,
-            description: '',
-            hint: '',
-            feedback: { correct: '', incorrect: '' },
-            pairs: [],
-            items: [],
-            blanks: []
+            question: '', options: [], correct: null, description: '', hint: '',
+            feedback: { correct: '', incorrect: '' }, pairs: [], items: [], blanks: []
         };
-        
+
         const lines = content.split('\n');
-        let currentKey = null;
         let currentList = null;
-        
+
         for (const line of lines) {
             const trimmed = line.trim();
-            
-            // Key-value pairs
-            if (trimmed.startsWith('question:')) {
-                data.question = trimmed.substring(9).trim();
-                currentKey = 'question';
-            } else if (trimmed.startsWith('description:')) {
-                data.description = trimmed.substring(12).trim();
-                currentKey = 'description';
-            } else if (trimmed.startsWith('hint:')) {
-                data.hint = trimmed.substring(5).trim();
-                currentKey = 'hint';
-            } else if (trimmed.startsWith('correct:')) {
-                data.correct = trimmed.substring(8).trim();
-                currentKey = 'correct';
-            } else if (trimmed.startsWith('correct_feedback:')) {
-                data.feedback.correct = trimmed.substring(17).trim();
-            } else if (trimmed.startsWith('incorrect_feedback:')) {
-                data.feedback.incorrect = trimmed.substring(19).trim();
-            } else if (trimmed.startsWith('options:')) {
-                currentList = 'options';
-            } else if (trimmed.startsWith('pairs:')) {
-                currentList = 'pairs';
-            } else if (trimmed.startsWith('items:')) {
-                currentList = 'items';
-            } else if (trimmed.startsWith('blanks:')) {
-                currentList = 'blanks';
-            } else if (trimmed.startsWith('- ') && currentList) {
+
+            if (trimmed.startsWith('question:')) { data.question = trimmed.substring(9).trim(); currentList = null; }
+            else if (trimmed.startsWith('description:')) { data.description = trimmed.substring(12).trim(); currentList = null; }
+            else if (trimmed.startsWith('hint:')) { data.hint = trimmed.substring(5).trim(); currentList = null; }
+            else if (trimmed.startsWith('correct:')) { data.correct = trimmed.substring(8).trim(); currentList = null; }
+            else if (trimmed.startsWith('correct_feedback:')) { data.feedback.correct = trimmed.substring(17).trim(); }
+            else if (trimmed.startsWith('incorrect_feedback:')) { data.feedback.incorrect = trimmed.substring(19).trim(); }
+            else if (trimmed.startsWith('options:')) { currentList = 'options'; }
+            else if (trimmed.startsWith('pairs:')) { currentList = 'pairs'; }
+            else if (trimmed.startsWith('items:')) { currentList = 'items'; }
+            else if (trimmed.startsWith('blanks:')) { currentList = 'blanks'; }
+            else if (trimmed.startsWith('- ') && currentList) {
                 const value = trimmed.substring(2);
                 if (currentList === 'pairs') {
                     const parts = value.split('|').map(s => s.trim());
-                    if (parts.length === 2) {
-                        data.pairs.push({ left: parts[0], right: parts[1] });
-                    }
+                    if (parts.length === 2) data.pairs.push({ left: parts[0], right: parts[1] });
                 } else if (currentList === 'blanks') {
                     data.blanks.push(value);
                 } else {
                     data[currentList].push(value);
                 }
-            } else if (trimmed.startsWith('text:')) {
-                data.text = trimmed.substring(5).trim();
-            } else if (trimmed.startsWith('min:')) {
-                data.min = parseInt(trimmed.substring(4).trim());
-            } else if (trimmed.startsWith('max:')) {
-                data.max = parseInt(trimmed.substring(4).trim());
-            } else if (trimmed.startsWith('step:')) {
-                data.step = parseInt(trimmed.substring(5).trim());
-            } else if (trimmed.startsWith('minLabel:')) {
-                data.minLabel = trimmed.substring(9).trim();
-            } else if (trimmed.startsWith('maxLabel:')) {
-                data.maxLabel = trimmed.substring(9).trim();
-            } else if (trimmed.startsWith('placeholder:')) {
-                data.placeholder = trimmed.substring(12).trim();
-            } else if (trimmed.startsWith('minLength:')) {
-                data.minLength = parseInt(trimmed.substring(10).trim());
-            } else if (trimmed.startsWith('maxLength:')) {
-                data.maxLength = parseInt(trimmed.substring(10).trim());
             }
+            else if (trimmed.startsWith('text:')) { data.text = trimmed.substring(5).trim(); }
+            else if (trimmed.startsWith('min:')) { data.min = parseInt(trimmed.substring(4).trim()); }
+            else if (trimmed.startsWith('max:')) { data.max = parseInt(trimmed.substring(4).trim()); }
+            else if (trimmed.startsWith('step:')) { data.step = parseInt(trimmed.substring(5).trim()); }
+            else if (trimmed.startsWith('minLabel:')) { data.minLabel = trimmed.substring(9).trim(); }
+            else if (trimmed.startsWith('maxLabel:')) { data.maxLabel = trimmed.substring(9).trim(); }
+            else if (trimmed.startsWith('placeholder:')) { data.placeholder = trimmed.substring(12).trim(); }
+            else if (trimmed.startsWith('minLength:')) { data.minLength = parseInt(trimmed.substring(10).trim()); }
+            else if (trimmed.startsWith('maxLength:')) { data.maxLength = parseInt(trimmed.substring(10).trim()); }
         }
-        
+
         return data;
     }
-    
-    /**
-     * Create Multiple Choice HTML
-     */
+
     createMultipleChoice(id, data) {
         const optionsHtml = data.options.map((option, index) => {
-            const letter = String.fromCharCode(65 + index); // A, B, C, D...
+            const letter = String.fromCharCode(65 + index);
             return `
                 <label class="mc-option" data-value="${letter}">
                     <input type="radio" name="${id}" value="${letter}">
@@ -408,69 +550,46 @@ class MarkdownParser {
                 </label>
             `;
         }).join('');
-        
         return `
             <p class="exercise-question">${data.question}</p>
-            <div class="mc-options" data-correct="${data.correct}">
-                ${optionsHtml}
-            </div>
+            <div class="mc-options" data-correct="${data.correct}">${optionsHtml}</div>
         `;
     }
-    
-    /**
-     * Create True/False HTML
-     */
+
     createTrueFalse(id, data) {
         return `
             <p class="exercise-question">${data.question}</p>
             <div class="tf-options" data-correct="${data.correct}">
                 <button class="tf-option true" data-value="true" onclick="selectTrueFalse(this)">
-                    <span class="tf-icon">✓</span>
-                    <span class="tf-label">Richtig</span>
+                    <span class="tf-icon">✓</span><span class="tf-label">Richtig</span>
                 </button>
                 <button class="tf-option false" data-value="false" onclick="selectTrueFalse(this)">
-                    <span class="tf-icon">✗</span>
-                    <span class="tf-label">Falsch</span>
+                    <span class="tf-icon">✗</span><span class="tf-label">Falsch</span>
                 </button>
             </div>
         `;
     }
-    
-    /**
-     * Create Fill in the Blank HTML
-     */
+
     createFillBlank(id, data) {
         let text = data.text || data.question;
         let blankIndex = 0;
-        
-        // Replace ___ with input fields
         text = text.replace(/___/g, () => {
             const answer = data.blanks[blankIndex] || '';
             const input = `<input type="text" class="fill-blank" data-answer="${answer}" data-index="${blankIndex}" placeholder="...">`;
             blankIndex++;
             return input;
         });
-        
-        return `
-            <div class="fill-blank-container">${text}</div>
-        `;
+        return `<div class="fill-blank-container">${text}</div>`;
     }
-    
-    /**
-     * Create Matching Exercise HTML
-     */
+
     createMatching(id, data) {
-        // Shuffle right side for matching
         const shuffledRight = [...data.pairs].sort(() => Math.random() - 0.5);
-        
         const leftHtml = data.pairs.map((pair, index) => `
             <div class="matching-item left" data-index="${index}" onclick="selectMatching(this, 'left')">${pair.left}</div>
         `).join('');
-        
-        const rightHtml = shuffledRight.map((pair, index) => `
+        const rightHtml = shuffledRight.map((pair) => `
             <div class="matching-item right" data-answer="${data.pairs.findIndex(p => p.right === pair.right)}" onclick="selectMatching(this, 'right')">${pair.right}</div>
         `).join('');
-        
         return `
             <p class="exercise-question">${data.question || 'Ordne die passenden Paare zu:'}</p>
             <div class="matching-container">
@@ -480,78 +599,51 @@ class MarkdownParser {
             </div>
         `;
     }
-    
-    /**
-     * Create Ordering Exercise HTML
-     */
+
     createOrdering(id, data) {
-        // Shuffle items
         const shuffled = [...data.items].sort(() => Math.random() - 0.5);
-        
         const itemsHtml = shuffled.map((item, index) => {
             const correctIndex = data.items.indexOf(item);
             return `
                 <div class="ordering-item" draggable="true" data-correct-index="${correctIndex}">
-                    <span class="ordering-handle">
-                        <span></span><span></span><span></span>
-                    </span>
+                    <span class="ordering-handle"><span></span><span></span><span></span></span>
                     <span class="ordering-number">${index + 1}</span>
                     <span class="ordering-text">${item}</span>
                 </div>
             `;
         }).join('');
-        
         return `
             <p class="exercise-question">${data.question || 'Bringe die Elemente in die richtige Reihenfolge:'}</p>
-            <div class="ordering-list" id="ordering-${id}">
-                ${itemsHtml}
-            </div>
+            <div class="ordering-list" id="ordering-${id}">${itemsHtml}</div>
         `;
     }
-    
-    /**
-     * Create Text Input Exercise HTML
-     */
+
     createTextInput(id, data) {
         const minLength = data.minLength || 10;
         const maxLength = data.maxLength || 500;
-        
         return `
             <p class="exercise-question">${data.question}</p>
             <div class="text-input-exercise">
-                <textarea class="text-input-area" 
-                    id="text-${id}" 
+                <textarea class="text-input-area" id="text-${id}"
                     placeholder="${data.placeholder || 'Deine Antwort hier eingeben...'}"
-                    minlength="${minLength}"
-                    maxlength="${maxLength}"
+                    minlength="${minLength}" maxlength="${maxLength}"
                     oninput="updateCharCounter(this, ${maxLength})"></textarea>
-                <div class="char-counter">
-                    <span id="counter-${id}">0</span> / ${maxLength} Zeichen
-                </div>
+                <div class="char-counter"><span id="counter-${id}">0</span> / ${maxLength} Zeichen</div>
             </div>
         `;
     }
-    
-    /**
-     * Create Scale Exercise HTML
-     */
+
     createScale(id, data) {
         const min = data.min || 1;
         const max = data.max || 10;
         const step = data.step || 1;
         const defaultValue = Math.round((min + max) / 2);
-        
         return `
             <p class="scale-question">${data.question}</p>
             <div class="scale-exercise">
                 <div class="scale-slider-container">
-                    <input type="range" 
-                        class="scale-slider" 
-                        id="scale-${id}"
-                        min="${min}" 
-                        max="${max}" 
-                        step="${step}"
-                        value="${defaultValue}"
+                    <input type="range" class="scale-slider" id="scale-${id}"
+                        min="${min}" max="${max}" step="${step}" value="${defaultValue}"
                         oninput="updateScaleValue('${id}', this.value)">
                 </div>
                 <div class="scale-labels">
@@ -562,10 +654,7 @@ class MarkdownParser {
             </div>
         `;
     }
-    
-    /**
-     * Create Interactive Demo HTML
-     */
+
     createDemo(id, data) {
         return `
             <div class="interactive-demo" id="demo-${id}">
@@ -588,20 +677,12 @@ class MarkdownParser {
             </div>
         `;
     }
-    
-    /**
-     * Get human-readable exercise type label
-     */
+
     getExerciseTypeLabel(type) {
         const labels = {
-            'multiple-choice': 'Multiple Choice',
-            'true-false': 'Richtig/Falsch',
-            'fill-blank': 'Lückentext',
-            'matching': 'Zuordnung',
-            'ordering': 'Reihenfolge',
-            'text-input': 'Freitext',
-            'scale': 'Bewertung',
-            'demo': 'Interaktive Demo'
+            'multiple-choice': 'Multiple Choice', 'true-false': 'Richtig/Falsch',
+            'fill-blank': 'Lückentext', 'matching': 'Zuordnung', 'ordering': 'Reihenfolge',
+            'text-input': 'Freitext', 'scale': 'Bewertung', 'demo': 'Interaktive Demo'
         };
         return labels[type] || type;
     }

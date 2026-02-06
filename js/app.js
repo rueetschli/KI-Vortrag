@@ -135,8 +135,62 @@ class KIAkademie {
         this.elements.app?.classList.remove('hidden');
         if (this.elements.displayName) this.elements.displayName.textContent = user.name;
         if (this.elements.userAvatar) this.elements.userAvatar.textContent = user.initials;
+
+        // Auto fullscreen on start
+        setTimeout(() => {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }, 300);
     }
 }
 
+// Global: play video fullscreen
+window.playVideoFullscreen = function(thumbnailEl) {
+    const container = thumbnailEl.closest('.media-video-container');
+    if (!container) return;
+
+    const videoId = container.dataset.videoId;
+    const videoUrl = container.dataset.videoUrl;
+    if (!videoId) return;
+
+    const overlay = document.getElementById('video-fullscreen-overlay');
+    const content = document.getElementById('video-fullscreen-content');
+    if (!overlay || !content) return;
+
+    content.innerHTML = `
+        <iframe
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
+            title="Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            style="width:100%;height:100%;border:0;border-radius:12px;"
+        ></iframe>
+    `;
+    overlay.classList.remove('hidden');
+
+    // Close handler
+    const closeBtn = document.getElementById('close-video-fullscreen');
+    const closeHandler = () => {
+        overlay.classList.add('hidden');
+        content.innerHTML = '';
+        closeBtn.removeEventListener('click', closeHandler);
+    };
+    closeBtn.addEventListener('click', closeHandler);
+
+    // Escape to close
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeHandler();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+};
+
 window.app = new KIAkademie();
-document.addEventListener('DOMContentLoaded', () => window.app.init());
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if this is a task submission page (mobile student view)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('task')) return; // task-submissions.js handles this
+
+    window.app.init();
+});
