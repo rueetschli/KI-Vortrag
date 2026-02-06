@@ -8,6 +8,13 @@
 
 Wirtschaftsschule Five Digital
 
+:::notes
+- Herzlich willkommen! Kurz vorstellen und Ablauf erklären
+- 6 Module, mit Pausen dazwischen
+- Handys auf lautlos, aber griffbereit – wir brauchen sie für Übungen
+- Fragen jederzeit willkommen
+:::endnotes
+
 ---slide---
 
 ## Was Sie heute erwartet
@@ -15,6 +22,12 @@ Wirtschaftsschule Five Digital
 :::info
 Dieses Modul bringt Sie auf den **neuesten Stand der KI-Revolution** – mit Fokus auf Schweizer Praxis, echte Tools und sofort umsetzbare Strategien.
 :::
+
+:::notes
+- Lernziele kurz durchgehen, damit die Teilnehmer wissen was kommt
+- Betonen: Praxisnähe ist das Ziel – nicht reine Theorie
+- "Am Ende des Tages werden Sie KI-Tools aktiv in Ihrem Job einsetzen können"
+:::endnotes
 
 ### Ihre Lernziele:
 

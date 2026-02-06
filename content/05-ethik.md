@@ -6,6 +6,13 @@
 
 Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 
+:::notes
+- Dieses Modul ist eines der wichtigsten: Ethik wird immer prüfungsrelevant sein
+- Ziel: Teilnehmer sollen verstehen, warum KI-Ethik geschäftskritisch ist
+- Am Ende kommt eine Gruppenaufgabe – dafür 2 Gruppen bilden lassen
+- Zeit: ca. 30 Minuten inkl. Gruppenarbeit
+:::endnotes
+
 ---slide---
 
 ## Warum KI-Ethik 2026 geschäftskritisch ist
@@ -19,6 +26,12 @@ Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 - Ethische Fehltritte führen zu **messbaren Reputationsschäden**
 - **93% der Führungskräfte** sagen: KI-Agenten verändern Kundenbeziehungen fundamental
 - "Shadow Agents" – nicht autorisierte KI-Tools von Mitarbeitenden – machen über **50% der KI-Nutzung** in Unternehmen aus
+
+:::notes
+- Betonung auf "geschäftskritisch" – nicht nur moralisch, sondern finanziell
+- Beispiel: Unternehmen X verlor 15% Aktienwert nach Bias-Skandal
+- Frage an Teilnehmer: "Hat jemand von Ihnen schon KI-Tools ohne Firmenfreigabe genutzt?"
+:::endnotes
 
 ---slide---
 
@@ -34,6 +47,12 @@ Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 
 **Gesundheitsalgorithmus USA:** Bevorzugte weisse Patienten – weil Gesundheits*ausgaben* als Proxy für *Bedarf* verwendet wurden. Schwarze Patienten hatten historisch weniger Zugang zum Gesundheitssystem.
 
+:::notes
+- Amazon-Fall besonders eindrücklich: Sie haben das System nach 3 Jahren wieder eingestellt
+- Bei Gesichtserkennung: Zahlen zeigen lassen, Pause machen, wirken lassen
+- Frage: "Wo könnte Bias in Ihrem Unternehmen auftreten?"
+:::endnotes
+
 ---slide---
 
 ## Problem 2: Halluzinationen – KI erfindet "Fakten"
@@ -48,6 +67,12 @@ Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 - Google's KI-Suchresultat empfahl, **Kleber auf Pizza** zu machen (Reddit-Quelle)
 
 **Die Regel:** KI als "brillanten Praktikanten" behandeln – intelligent, aber **immer prüfen**.
+
+:::notes
+- Der Anwalts-Fall ist perfekt als Aufhänger – sorgt immer für Reaktionen
+- Wichtig: Nicht KI-Angst schüren, sondern "Trust but verify"-Mentalität vermitteln
+- Praxistipp: Immer eine zweite Quelle prüfen, nie KI-Output ungeprüft weitergeben
+:::endnotes
 
 ---slide---
 
@@ -67,6 +92,12 @@ Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 :::warning
 **Ab August 2026:** Der EU AI Act verlangt, dass **alle Deepfakes** klar als KI-generiert gekennzeichnet werden.
 :::
+
+:::notes
+- Hongkong-Fall: Der Mitarbeiter war in einem Videocall mit 5 Kollegen – ALLE waren Deepfakes
+- Das ist kein Sci-Fi mehr, das passiert JETZT
+- Praxistipp für die Firma: Verification-Protokoll für grosse Überweisungen
+:::endnotes
 
 ---slide---
 
@@ -128,6 +159,12 @@ Verantwortungsvoller Einsatz als Geschäftsnotwendigkeit
 - Wie werden KI-generierte Inhalte **gekennzeichnet**?
 - Welche **Zertifizierungen** liegen vor (SOC 2, ISO 27001)?
 
+:::notes
+- Diese Folie als Checkliste positionieren
+- Tipp: Ausdrucken und bei jedem Tool-Evaluation verwenden
+- Erfahrung: Die meisten Anbieter können Frage 2 und 3 nicht klar beantworten
+:::endnotes
+
 ---slide---
 
 :::exercise{type="multiple-choice" id="ex-ethik" title="Ethische Herausforderung" points="15"}
@@ -149,5 +186,43 @@ placeholder: Beschreiben Sie, welche Tools genutzt werden und ob es Regeln dafü
 minLength: 50
 maxLength: 300
 :::
+
+---slide---
+
+:::task{id="ethik-guideline" title="KI-Richtlinien für Ihr Büro"}
+Bilden Sie **zwei Gruppen** und erarbeiten Sie gemeinsam eine KI-Guideline für Ihr Unternehmen.
+
+**Ihre Aufgabe:**
+Erstellen Sie eine kurze, praktische Richtlinie (5–10 Regeln), die festlegt, wie KI-Tools im Büroalltag verantwortungsvoll eingesetzt werden sollen.
+
+**Denken Sie an:**
+- Welche KI-Tools sind erlaubt / verboten?
+- Wie gehen wir mit vertraulichen Daten um?
+- Wer prüft KI-generierte Inhalte vor der Veröffentlichung?
+- Wie kennzeichnen wir KI-generierte Inhalte?
+- Was passiert bei Verstössen?
+
+**Zeit:** 10 Minuten
+:::endtask
+
+:::notes
+- Jetzt 2 Gruppen bilden lassen – idealerweise mischen
+- Jede Gruppe soll einen "Schreiber" bestimmen der die Antwort eingibt
+- Nach 10 Min die Ergebnisse gemeinsam besprechen (nächste Folie)
+- Tipp: Auf die Uhr schauen, Timer nutzen!
+:::endnotes
+
+---slide---
+
+## Ergebnisse: KI-Richtlinien
+
+:::taskresults{task="ethik-guideline" title="Eure KI-Richtlinien"}
+
+:::notes
+- Jede Gruppe ihre Ergebnisse kurz vorstellen lassen (2-3 Min pro Gruppe)
+- Gemeinsamkeiten herausarbeiten
+- Auf Punkte eingehen die fehlen (z.B. Datenschutz, Kennzeichnung)
+- Abschluss: "Eine gute KI-Policy schützt das Unternehmen UND die Mitarbeitenden"
+:::endnotes
 
 :::endmodule
