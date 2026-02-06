@@ -116,7 +116,11 @@ Die meisten kabellosen Presenter (Logitech, Kensington etc.) senden `Page Up` / 
 
 ### Touch/Mobile
 
-Wischen Sie nach links/rechts zum Navigieren.
+Wischen Sie nach links/rechts zum Navigieren. Die Swipe-Erkennung ist so konzipiert, dass sie **nicht mit interaktiven Übungen kollidiert**:
+
+- Touch auf Übungs-Elementen (Slider, MC-Optionen, Drag & Drop, Buttons, Eingabefelder) löst **keine** Foliennavigation aus
+- Nur klar horizontale Wischgesten (>80px, X-Bewegung grösser als 2× Y-Bewegung) wechseln die Folie
+- Slider-Thumbs sind auf Mobilgeräten vergrössert (44–52px) für komfortable Bedienung
 
 ---
 
@@ -316,8 +320,31 @@ hint: Denken Sie an die grundlegende Funktionsweise von Machine Learning.
 |-----------|-------------|
 | `question:` | Die Fragestellung |
 | `options:` | Liste der Antwortmöglichkeiten (mit `- ` Prefix) |
-| `correct:` | Buchstabe der richtigen Antwort (A, B, C, D) |
+| `correct:` | Buchstabe der richtigen Antwort (A, B, C, D) oder `*` für Umfrage-Modus |
 | `hint:` | Optionaler Hinweis (Button zum Einblenden) |
+
+#### Umfrage-Modus (correct: \*)
+
+Wenn `correct: *` gesetzt wird, ist **jede Antwort gültig** – ideal für Einstiegsfragen, Meinungsumfragen oder Gruppenreflexionen:
+
+```markdown
+:::exercise{type="multiple-choice" id="umfrage1" title="Schneller Einstieg" points="5"}
+question: Was von diesen Dingen hast du schon einmal mit KI gemacht?
+options:
+- Noch nie KI benutzt
+- Einfache Fragen an ChatGPT gestellt
+- KI regelmässig für die Arbeit genutzt
+- KI-Tools in Firmenprozesse integriert
+correct: *
+hint: Es gibt hier keine falsche Antwort – wir wollen nur sehen, wo die Gruppe steht.
+:::
+```
+
+**Verhalten im Umfrage-Modus:**
+- Jede Auswahl wird als richtig gewertet (Punkte werden vergeben)
+- Feedback zeigt "Danke! Ihre Antwort wurde erfasst." statt Richtig/Falsch
+- Keine Option wird als falsch markiert – nur die gewählte wird hervorgehoben
+- Im **Dozenten-Dashboard** wird die Verteilung aller Antworten als Balkendiagramm angezeigt
 
 ### 2. Richtig/Falsch
 
@@ -626,8 +653,9 @@ Der Dashboard-Button (Balkendiagramm-Icon) öffnet eine Übersicht:
 - Höchste Punktzahl
 
 **Feedback-Auswertung:**
-- Aggregierte Ergebnisse von Skala-Übungen (Durchschnittswert + Einzelwerte)
-- Freitext-Feedback aller Studenten
+- **Multiple-Choice-Umfragen** (`correct: *`): Balkendiagramm mit Antwortverteilung pro Option (Anzahl + Prozent)
+- **Skala-Übungen:** Durchschnittswert + alle Einzelwerte
+- **Freitext-Feedback:** Alle Studenten-Antworten einzeln aufgelistet
 
 **CSV-Export:** Alle Ergebnisse als CSV-Datei herunterladen (kompatibel mit Excel).
 
@@ -692,7 +720,7 @@ Studenten müssen nicht selbst durch die Folien navigieren:
 | `POST` | `?action=score` | Studenten-Punktestand melden (Body: `{name, studentId, earned, total, percentage, exercises}`) |
 | `GET` | `?action=scores` | Alle Studenten-Punktestände abfragen |
 | `DELETE` | `?action=scores` | Alle Punktestände + Folienstatus löschen |
-| `GET` | `?action=feedback` | Feedback-Übungen (Skala, Freitext) aggregiert abfragen |
+| `GET` | `?action=feedback` | Feedback-Übungen (MC, Skala, Freitext) aggregiert abfragen |
 
 ### Editor API (`api/editor.php`)
 
