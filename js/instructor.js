@@ -329,15 +329,17 @@
     }
 
     function clearAllAnswers() {
-        // Clear task submissions from localStorage
-        const keys = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('ki-task-')) {
-                keys.push(key);
+        // Clear task submissions (API + localStorage)
+        if (window.taskSubmissions?.clearAllSubmissions) {
+            window.taskSubmissions.clearAllSubmissions();
+        } else {
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ki-task-')) keys.push(key);
             }
+            keys.forEach(k => localStorage.removeItem(k));
         }
-        keys.forEach(k => localStorage.removeItem(k));
 
         // Clear exercise results
         if (window.storage) {

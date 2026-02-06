@@ -1,0 +1,3 @@
+# Submission data (generated at runtime by API)
+api/data/*.json
+api/data/*.lock
