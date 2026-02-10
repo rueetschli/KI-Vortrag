@@ -939,6 +939,78 @@ body {
     margin: 0;
 }
 
+/* Markdown enhancements (tables, links, images) */
+.slide .markdown-link {
+    color: var(--accent-light);
+    text-decoration: underline;
+    text-decoration-color: rgba(245, 158, 11, 0.45);
+    text-underline-offset: 3px;
+    transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+}
+
+.slide .markdown-link:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+}
+
+.slide .markdown-table-wrap {
+    margin: var(--space-lg) 0;
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    background: rgba(10, 20, 35, 0.45);
+}
+
+.slide .markdown-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+}
+
+.slide .markdown-table th,
+.slide .markdown-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
+    color: var(--gray-200);
+    font-size: 0.95rem;
+}
+
+.slide .markdown-table th {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--white);
+    font-weight: 700;
+}
+
+.slide .markdown-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.slide .markdown-table tbody tr:hover {
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.slide .markdown-image {
+    display: block;
+    max-width: min(100%, 860px);
+    height: auto;
+    margin: var(--space-md) auto var(--space-lg);
+}
+
+.slide .markdown-image-framed {
+    border-radius: calc(var(--radius-lg) + 2px);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(245, 158, 11, 0.15) inset;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.slide .markdown-video-container {
+    margin: var(--space-md) auto var(--space-lg);
+    max-width: min(100%, 860px);
+}
+
 /* Special Content Boxes */
 .info-box {
     margin: var(--space-lg) 0;

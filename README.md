@@ -14,6 +14,7 @@
 - [Content erstellen](#content-erstellen)
   - [Module und Folien](#module-und-folien)
   - [Videos einbinden](#videos-einbinden)
+  - [Bilder, Tabellen und Links](#bilder-tabellen-und-links)
   - [Speaker-Notes](#speaker-notes)
   - [Spezielle Boxen](#spezielle-boxen)
   - [Media-Layouts](#media-layouts)
@@ -213,6 +214,45 @@ Text neben dem Video mit eigenem Vorschaubild.
 #### 4. YouTube-Overlay während der Präsentation
 
 Als Dozent können Sie über das Presenter-Dock (`Video`-Button) jederzeit ein YouTube-Video live einblenden, ohne es vorher in die Folien einzubauen.
+
+### Bilder, Tabellen und Links
+
+#### Tabellen (Markdown Standard)
+
+Normale Markdown-Tabellen werden automatisch modern gestylt und bei Bedarf horizontal scrollbar gemacht:
+
+```markdown
+| Tool | Stärke | Preis |
+|------|--------|-------|
+| ChatGPT | Allround | $20 |
+| Claude | Schreiben | $20 |
+```
+
+#### Links
+
+Markdown-Links werden optisch hervorgehoben. Externe Links öffnen automatisch in einem neuen Tab:
+
+```markdown
+[Zur OpenAI Webseite](https://openai.com)
+```
+
+#### Bilder mit modernem Rahmen
+
+Normale Markdown-Bilder erhalten automatisch einen leichten, modernen Rahmen:
+
+```markdown
+![Mein Bild](bilder/beispiel.png)
+```
+
+#### Bildgrösse steuern
+
+Du kannst Bilder per `size=` in `Alt` oder `Title` skalieren (z. B. `small`, `medium`, `large`, `xl`, oder konkrete Werte wie `320px` / `70%`):
+
+```markdown
+![Teamfoto size=small](bilder/team.png)
+![Infografik](bilder/info.png "size=70%")
+![Poster size=320px](bilder/poster.png)
+```
 
 ### Speaker-Notes
 
