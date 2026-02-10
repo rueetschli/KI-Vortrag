@@ -20,6 +20,10 @@
         return document.getElementById(id);
     }
 
+    function isInstructorMode() {
+        return window.instructorModule?.isInstructor?.() || window.isInstructor === true;
+    }
+
     function formatTime(totalSeconds) {
         const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
         const ss = String(totalSeconds % 60).padStart(2, '0');
@@ -28,6 +32,7 @@
 
     // --- Spotlight Feature ---
     function toggleSpotlight() {
+        if (!isInstructorMode()) return;
         const btn = byId('toggle-spotlight');
         spotlightActive = !spotlightActive;
 
@@ -54,6 +59,7 @@
 
     // --- Dock Timer (Stopwatch) ---
     function toggleDockTimer() {
+        if (!isInstructorMode()) return;
         const btn = byId('toggle-timer');
         const display = byId('dock-timer-display');
 
@@ -73,6 +79,7 @@
 
     // --- Break / Pause Feature ---
     function togglePauseMenu() {
+        if (!isInstructorMode()) return;
         const overlay = byId('break-overlay');
         const selection = byId('break-selection');
         const timerView = byId('break-timer-view');
@@ -145,12 +152,14 @@
     }
 
     function stopBreak() {
+        if (!isInstructorMode()) return;
         if (breakInterval) {
             clearInterval(breakInterval);
             breakInterval = null;
         }
         byId('break-overlay')?.classList.add('hidden');
-        byId('break-countdown').style.color = ''; // Reset color
+        const countdown = byId('break-countdown');
+        if (countdown) countdown.style.color = ''; // Reset color
     }
 
     // --- Media & Modal Helpers ---
@@ -169,6 +178,7 @@
     }
 
     function openModal(id) {
+        if (!isInstructorMode()) return;
         byId(id)?.classList.remove('hidden');
     }
 
@@ -177,6 +187,7 @@
     }
 
     function embedYoutube() {
+        if (!isInstructorMode()) return;
         const input = byId('youtube-url');
         const preview = byId('youtube-preview');
         const id = extractYoutubeId(input?.value || '');
@@ -198,6 +209,7 @@
     }
 
     function toggleInteractionPanel(forceOpen) {
+        if (!isInstructorMode()) return;
         const panel = byId('interaction-panel');
         if (!panel) return;
         if (typeof forceOpen === 'boolean') {
@@ -208,6 +220,7 @@
     }
 
     function generateQr() {
+        if (!isInstructorMode()) return;
         const title = byId('qr-title')?.value || 'Interaktion';
         const link = byId('qr-link')?.value || '';
         const output = byId('qr-output');
@@ -259,6 +272,7 @@
 
         // Keyboard Shortcuts
         document.addEventListener('keydown', (event) => {
+            if (!isInstructorMode()) return;
             const tag = event.target.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || event.target.isContentEditable) return;
 

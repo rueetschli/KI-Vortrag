@@ -29,24 +29,44 @@
 }
 
 .instructor-login-toggle {
+    position: relative;
     width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-sm);
     padding: var(--space-md) var(--space-xl);
-    background: transparent;
-    border: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.35);
     border-radius: var(--radius-lg);
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--gray-400);
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--accent-light);
     cursor: pointer;
     transition: all var(--transition-normal);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.instructor-login-toggle::before {
+    content: '🎓';
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .instructor-login-toggle:hover,
 .instructor-login-toggle.active {
-    background: rgba(245, 158, 11, 0.08);
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(59, 130, 246, 0.16) 100%);
     border-color: var(--accent);
     color: var(--accent);
+    box-shadow: 0 12px 28px rgba(245, 158, 11, 0.22);
+}
+
+.instructor-login-toggle:focus-visible {
+    outline: 2px solid rgba(245, 158, 11, 0.7);
+    outline-offset: 2px;
 }
 
 .instructor-form {
@@ -183,16 +203,22 @@
 }
 
 .task-live-count {
-    display: flex;
-    align-items: center;
+    display: inline-flex;
+    align-items: baseline;
     gap: var(--space-sm);
-    font-size: 1rem;
-    color: var(--gray-400);
+    margin-top: var(--space-sm);
+    padding: 0.4rem 0.8rem;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    color: var(--gray-300);
+    line-height: 1;
 }
 
 .task-live-count .count-number {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--success);
 }
@@ -639,4 +665,20 @@
 
 #confirm-clear:hover {
     box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+
+@media (max-width: 700px) {
+    .instructor-login-toggle {
+        font-size: 0.86rem;
+        padding: var(--space-sm) var(--space-lg);
+    }
+
+    .task-live-count {
+        font-size: 0.85rem;
+    }
+
+    .task-live-count .count-number {
+        font-size: 1rem;
+    }
 }
