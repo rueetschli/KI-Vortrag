@@ -236,6 +236,32 @@
             border-radius: 4px;
         }
 
+        .print-video-preview {
+            margin: 10px 0;
+        }
+
+        .print-video-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .print-video-link {
+            display: block;
+            font-size: 0.8rem;
+            color: #2563eb;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+
+        .media-play-button {
+            display: none !important;
+        }
+
         .media-source {
             font-size: 0.75rem;
             color: #999;
@@ -275,11 +301,8 @@
                 html += `<div class="print-slide">`;
                 html += `<span class="slide-number">Folie ${slideNum}</span>`;
 
-                // Clean content: remove exercise cards but keep task results
-                let content = slide.content;
-                // Remove interactive elements that don't make sense in print
-                content = content.replace(/<button[^>]*>.*?<\/button>/gi, '');
-                content = content.replace(/<input[^>]*>/gi, '');
+                // Clean content: remove interactive elements and optimize video previews for print
+                const content = sanitizeSlideForPrint(slide.content);
 
                 html += content;
 
@@ -329,6 +352,50 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    function sanitizeSlideForPrint(rawContent) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${rawContent}</div>`, 'text/html');
+        const root = doc.body.firstElementChild;
+        if (!root) return rawContent;
+
+        root.querySelectorAll('button, input').forEach(el => el.remove());
+
+        root.querySelectorAll('.media-video-container').forEach(container => {
+            const videoUrl = container.getAttribute('data-video-url') || '';
+            const thumbnail = container.querySelector('.media-thumbnail');
+            const thumbSrc = thumbnail?.getAttribute('src') || '';
+
+            const replacement = doc.createElement('div');
+            replacement.className = 'print-video-preview';
+
+            if (thumbSrc) {
+                const img = doc.createElement('img');
+                img.className = 'print-video-thumbnail';
+                img.src = thumbSrc;
+                img.alt = 'Video Vorschaubild';
+                replacement.appendChild(img);
+            }
+
+            if (videoUrl) {
+                const link = doc.createElement('a');
+                link.className = 'print-video-link';
+                link.href = videoUrl;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = `Video-Link: ${videoUrl}`;
+                replacement.appendChild(link);
+            }
+
+            if (!thumbSrc && !videoUrl) {
+                replacement.textContent = 'Video verfügbar (kein Link hinterlegt)';
+            }
+
+            container.replaceWith(replacement);
+        });
+
+        return root.innerHTML;
     }
 
     function bind() {
