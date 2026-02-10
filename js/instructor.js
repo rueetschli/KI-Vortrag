@@ -34,12 +34,16 @@
         const clearBtn = document.getElementById('clear-answers');
         const dashBtn = document.getElementById('open-dashboard');
         const editorBtn = document.getElementById('open-editor');
+        const presenterDock = document.getElementById('presenter-dock');
+        const interactionPanel = document.getElementById('interaction-panel');
 
         if (badge) badge.classList.remove('hidden');
         if (presenterBtn) presenterBtn.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (dashBtn) dashBtn.classList.remove('hidden');
         if (editorBtn) editorBtn.classList.remove('hidden');
+        if (presenterDock) presenterDock.classList.remove('hidden');
+        if (interactionPanel) interactionPanel.classList.remove('hidden');
 
         // Hide student points display for instructor
         const pointsEl = document.getElementById('student-points');
