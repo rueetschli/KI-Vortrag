@@ -204,8 +204,8 @@ class MarkdownParser {
         // Restore pre-generated HTML blocks (exercises, tasks, task results)
         html = this.restoreHtmlBlocks(html);
 
-        // Process video thumbnails
-        html = this.processVideoThumbnails(html);
+        // Post-process markdown output (videos, images, tables, links)
+        html = this.enhanceRenderedHtml(html);
 
         // Create slide object
         const slide = {
@@ -313,24 +313,100 @@ class MarkdownParser {
     }
 
     /**
-     * Process video thumbnails: YouTube image links become playable thumbnails
+     * Post-process rendered markdown HTML to support richer media rendering.
      */
-    processVideoThumbnails(html) {
-        html = html.replace(
-            /<img\s+src="(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})[^"]*)"[^>]*>/g,
-            (match, url, videoId) => {
+    enhanceRenderedHtml(html) {
+        if (typeof DOMParser === 'undefined') {
+            return html;
+        }
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div class="md-root">${html}</div>`, 'text/html');
+        const root = doc.body.firstElementChild;
+        if (!root) return html;
+
+        // Convert markdown images that point to YouTube URLs into video thumbnails
+        const images = Array.from(root.querySelectorAll('img'));
+        images.forEach((img) => {
+            const src = img.getAttribute('src') || '';
+            const videoId = this.extractYoutubeId(src);
+
+            if (videoId) {
                 const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                return `
-                    <div class="media-video-container" data-video-id="${videoId}" data-video-url="${url}">
-                        <img src="${thumbUrl}" alt="Video Vorschau" class="media-thumbnail" onclick="playVideoFullscreen(this)">
-                        <div class="media-play-button" onclick="playVideoFullscreen(this.parentElement.querySelector('.media-thumbnail'))">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        </div>
+                const videoContainer = doc.createElement('div');
+                videoContainer.className = 'media-video-container markdown-video-container';
+                videoContainer.setAttribute('data-video-id', videoId);
+                videoContainer.setAttribute('data-video-url', src);
+                videoContainer.innerHTML = `
+                    <img src="${thumbUrl}" alt="Video Vorschau" class="media-thumbnail" onclick="playVideoFullscreen(this)">
+                    <div class="media-play-button" onclick="playVideoFullscreen(this.parentElement.querySelector('.media-thumbnail'))">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     </div>
                 `;
+
+                const parent = img.parentElement;
+                const parentOnlyContainsImage = parent && parent.tagName === 'P' && parent.children.length === 1;
+                if (parentOnlyContainsImage) {
+                    parent.replaceWith(videoContainer);
+                } else {
+                    img.replaceWith(videoContainer);
+                }
+                return;
             }
-        );
-        return html;
+
+            // Default markdown image enhancements
+            if (!img.classList.contains('media-image') && !img.classList.contains('task-qr-image')) {
+                img.classList.add('markdown-image', 'markdown-image-framed');
+            }
+
+            const sizeAttr = this.extractImageSizeAttr(img);
+            if (sizeAttr) {
+                img.classList.add('markdown-image-sized');
+                img.style.width = sizeAttr;
+                img.style.maxWidth = '100%';
+            }
+        });
+
+        // Style links and open external links in new tab
+        Array.from(root.querySelectorAll('a[href]')).forEach((link) => {
+            link.classList.add('markdown-link');
+            const href = link.getAttribute('href') || '';
+            if (/^https?:\/\//i.test(href)) {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        // Improve table rendering and wrapping
+        Array.from(root.querySelectorAll('table')).forEach((table) => {
+            table.classList.add('markdown-table');
+            if (!table.parentElement || !table.parentElement.classList.contains('markdown-table-wrap')) {
+                const wrap = doc.createElement('div');
+                wrap.className = 'markdown-table-wrap';
+                table.replaceWith(wrap);
+                wrap.appendChild(table);
+            }
+        });
+
+        return root.innerHTML;
+    }
+
+    extractImageSizeAttr(img) {
+        const title = img.getAttribute('title') || '';
+        const alt = img.getAttribute('alt') || '';
+        const combined = `${title} ${alt}`;
+        const sizeMatch = combined.match(/size\s*=\s*([0-9]+(?:px|%)|small|medium|large|xl)/i);
+        if (!sizeMatch) return '';
+
+        const value = sizeMatch[1].toLowerCase();
+        const presetMap = {
+            small: '35%',
+            medium: '55%',
+            large: '75%',
+            xl: '90%'
+        };
+
+        return presetMap[value] || value;
     }
 
     extractYoutubeId(url) {
