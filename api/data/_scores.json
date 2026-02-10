@@ -1,0 +1,34 @@
+[
+    {
+        "name": "Reto",
+        "studentId": "1iioe-mlfd3xmv",
+        "earned": 20,
+        "total": 20,
+        "percentage": 100,
+        "exercises": {
+            "ex-vorwissen": {
+                "correct": true,
+                "points": 5,
+                "maxPoints": 5,
+                "completedAt": "2026-02-09T16:04:25.541Z"
+            },
+            "ex-einstieg": {
+                "correct": true,
+                "points": 5,
+                "maxPoints": 5,
+                "completedAt": "2026-02-09T16:04:42.943Z"
+            },
+            "ex-modelle": {
+                "correct": true,
+                "points": 10,
+                "maxPoints": 10,
+                "completedAt": "2026-02-09T16:06:03.378Z",
+                "type": "multiple-choice",
+                "title": "Welches Modell wofuer?",
+                "value": "B",
+                "valueLabel": "B. Microsoft Copilot"
+            }
+        },
+        "timestamp": "2026-02-09T17:06:03+01:00"
+    }
+]

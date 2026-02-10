@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KI-Grundlagen | Wirtschaftsschule Five</title>
+    <title>KI-Grundlagen | Michael Rueetschli | Wirtschaftsschule Five</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,9 +140,9 @@
                 <div class="nav-logo">
                     <span class="logo-text">KI</span>
                     <span class="logo-dot"></span>
-                    <span class="logo-text-sub">AKADEMIE</span>
+                    <span class="logo-text-sub">Grundlagen</span>
                 </div>
-                <span class="instructor-badge hidden" id="instructor-badge">DOZENT</span>
+                <span class="instructor-badge hidden" id="instructor-badge">Michael Rueetschli</span>
             </div>
 
             <div class="nav-center">
@@ -293,6 +293,7 @@
 
         <!-- Presenter Dock -->
         <div class="presenter-dock" id="presenter-dock">
+			<button class="dock-button" id="toggle-pause" title="Pause starten (P)">☕ Pause</button>
             <button class="dock-button" id="toggle-spotlight" title="Spotlight (S)">💡 Spotlight</button>
             <button class="dock-button" id="toggle-timer" title="Timer starten/stoppen (T)">⏱️ Timer</button>
             <button class="dock-button" id="open-media-modal" title="YouTube einblenden">▶️ Video</button>
@@ -535,7 +536,27 @@
             </div>
         </div>
     </div>
+<div id="break-overlay" class="break-overlay hidden">
+    <div class="break-content">
+        <div id="break-selection">
+            <h2>Pause machen</h2>
+            <p>Wähle die Dauer der Pause:</p>
+            <div class="break-options">
+                <button class="break-btn" data-minutes="5">5 Min</button>
+                <button class="break-btn" data-minutes="10">10 Min</button>
+                <button class="break-btn" data-minutes="15">15 Min</button>
+            </div>
+            <button class="break-cancel" id="close-break">Abbrechen</button>
+        </div>
 
+        <div id="break-timer-view" class="hidden">
+            <h2>PAUSE</h2>
+            <div class="break-countdown" id="break-countdown">00:00</div>
+            <p class="break-until">Weiter geht es um <span id="break-end-time">--:--</span> Uhr</p>
+            <button class="break-stop" id="stop-break">Pause beenden</button>
+        </div>
+    </div>
+</div>
     <!-- Scripts -->
     <script src="js/particles.js"></script>
     <script src="js/markdown-parser.js"></script>

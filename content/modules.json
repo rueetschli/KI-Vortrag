@@ -1,18 +1,13 @@
 {
-    "title": "KI-Grundlagen - Einführungsmodul",
+    "title": "KI-Grundlagen",
     "institution": "Wirtschaftsschule Five",
-    "duration": "6 Stunden",
-    "version": "1.0",
+    "duration": "3 Lektionen a 55 Minuten",
+    "version": "2.0",
     "modules": [
         "01-willkommen.md",
-        "02-ki-landschaft.md",
-        "03-ki-geschichte.md",
-        "04-recht-schweiz.md",
-        "05-ethik.md",
-        "06-praxis-marketing.md",
-        "07-praxis-vertrieb.md",
-        "08-praxis-buero.md",
-        "09-best-practices.md",
-        "10-abschluss.md"
+        "02-ki-grundlagen.md",
+        "03-ki-praxis.md",
+        "04-best-practices.md",
+        "05-abschluss.md"
     ]
 }
