@@ -1011,6 +1011,95 @@ body {
     max-width: min(100%, 860px);
 }
 
+.slide .media-video-container {
+    position: relative;
+    cursor: pointer;
+    border-radius: calc(var(--radius-lg) + 2px);
+    overflow: hidden;
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(245, 158, 11, 0.15) inset;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.slide .media-thumbnail {
+    width: 100%;
+    display: block;
+    transition: transform var(--transition-normal);
+}
+
+.slide .media-video-container:hover .media-thumbnail {
+    transform: scale(1.03);
+}
+
+.slide .media-play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    background: rgba(245, 158, 11, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+    transition: all var(--transition-normal);
+}
+
+.slide .media-play-button:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: var(--accent);
+}
+
+.slide .media-play-button svg {
+    width: 30px;
+    height: 30px;
+    color: var(--primary-dark);
+    margin-left: 4px;
+}
+
+.video-fullscreen-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.video-fullscreen-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.video-fullscreen-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.video-fullscreen-content {
+    width: 100%;
+    max-width: 1200px;
+    aspect-ratio: 16 / 9;
+}
+
 /* Special Content Boxes */
 .info-box {
     margin: var(--space-lg) 0;
