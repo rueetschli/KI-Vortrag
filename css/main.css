@@ -1,0 +1,23 @@
+/* =============================================
+   KI-AKADEMIE - Unified Stylesheet Entry Point
+   ---------------------------------------------
+   Dieses File bündelt alle bestehenden Styles in
+   einer klaren, stabilen Lade-Reihenfolge.
+
+   WICHTIG:
+   - Es wurden keine bestehenden CSS-Definitionen gelöscht.
+   - Alle bisherigen Styles bleiben erhalten und werden
+     weiterhin geladen.
+   ============================================= */
+
+/* 1) Basis- und Core-Layout */
+@import url('./style.css');
+
+/* 2) Animationen und Effekte */
+@import url('./animations.css');
+
+/* 3) Übungen und Interaktions-Komponenten */
+@import url('./exercises.css');
+
+/* 4) Presenter-/Instructor-/Media-spezifische Styles */
+@import url('./presenter.css');
